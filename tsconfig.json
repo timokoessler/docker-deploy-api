@@ -1,0 +1,15 @@
+{
+    "include": ["src/**/*.ts", "src/**/*.mts", ".eslintrc.js"],
+    "exclude": ["node_modules/"],
+    "compilerOptions": {
+        "allowSyntheticDefaultImports": true,
+        "target": "ES2022",
+        "moduleResolution": "Node",
+        "outDir": "dist",
+        "module": "CommonJS",
+        "esModuleInterop": true,
+        "strict": false,
+        "checkJs": true,
+        "resolveJsonModule": true
+    }
+}
