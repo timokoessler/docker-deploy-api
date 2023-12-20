@@ -4,12 +4,14 @@ import * as Sentry from '@sentry/node';
 
 let docker: Docker;
 
-export async function initDocker() {
+export async function initDocker(cli = false) {
     try {
         docker = new Docker();
         await docker.ping();
-        log('info', 'Connected to Docker socket');
+        if (!cli) log('info', 'Connected to Docker socket');
+        return true;
     } catch (error) {
+        if (cli) return false;
         log('error', `Failed to connect to Docker socket: ${error.message}`);
         process.exit(1);
     }
@@ -88,5 +90,16 @@ export async function restartContainer(container: Docker.Container) {
         log('error', `Failed to restart container: ${error.message}`);
         Sentry.captureException(error);
         return false;
+    }
+}
+
+export async function getContainerInfoList() {
+    try {
+        const containers = await docker.listContainers();
+        return containers;
+    } catch (error) {
+        log('error', `Failed to list containers: ${error.message}`);
+        Sentry.captureException(error);
+        return null;
     }
 }

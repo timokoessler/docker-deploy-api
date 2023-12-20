@@ -61,7 +61,7 @@ export async function initPaseto() {
 /**
  * Generates a PASETO token
  * @param data Data to be stored in the token
- * @param expiresIn
+ * @param expiresIn Expiration time for the token as a string (e.g. '1h')
  * @returns
  */
 export async function generatePasetoToken(data: Record<string, unknown>, expiresIn: string): Promise<string> {
