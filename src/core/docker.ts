@@ -5,8 +5,8 @@ import * as Sentry from '@sentry/node';
 let docker: Docker;
 
 export async function initDocker() {
-    docker = new Docker();
     try {
+        docker = new Docker();
         await docker.ping();
         log('info', 'Connected to Docker socket');
     } catch (error) {
