@@ -6,6 +6,7 @@ import * as Sentry from '@sentry/node';
 import { setupRoutes } from './routes';
 import { initConfig } from './core/config';
 import { initPaseto, setupPaseto } from './core/tokens';
+import { initDocker } from './core/docker';
 
 if (cluster.isPrimary) {
     const config = initConfig();
@@ -30,7 +31,6 @@ if (cluster.isPrimary) {
 } else {
     const app: express.Application = express();
     const config = initConfig();
-    initPaseto();
 
     if (config.behindProxy) {
         app.set('trust proxy', ['loopback', 'linklocal', 'uniquelocal']);
@@ -54,6 +54,8 @@ if (cluster.isPrimary) {
         app.use(Sentry.Handlers.tracingHandler());
     }
 
+    initPaseto();
+    initDocker();
     setupRoutes(app);
 
     if (config.sentryDsn.length > 0) {

@@ -6,7 +6,7 @@ const config = {
     port: 3000,
     ip: '0.0.0.0',
     url: 'http://localhost:3000',
-    workers: 2,
+    workers: 1,
     behindProxy: true,
     sentryDsn: '',
 };
