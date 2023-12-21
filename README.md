@@ -1,4 +1,4 @@
-# Docker Deploy API
+# 🐳 Docker Deploy API
 
 An easy-to-use API for deploying Docker containers
 
