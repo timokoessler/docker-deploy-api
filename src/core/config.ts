@@ -9,28 +9,34 @@ const config = {
     workers: 1,
     behindProxy: true,
     sentryDsn: '',
+    disableIndexPage: false,
 };
+
+function toEnvName(key: string) {
+    return key.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase();
+}
 
 export function initConfig() {
     for (const key in config) {
-        if (process.env[key.toUpperCase()]) {
+        const envName = toEnvName(key);
+        if (process.env[envName]) {
             switch (typeof config[key]) {
                 case 'number':
-                    config[key] = Number(process.env[key.toUpperCase()]);
+                    config[key] = Number(process.env[envName]);
                     if (isNaN(config[key])) {
-                        log('error', `Environment variable ${key} is not a number`);
+                        log('error', `Environment variable ${envName} is not a number`);
                         process.exit(1);
                     }
                     break;
                 case 'boolean':
-                    if (process.env[key.toUpperCase()] !== 'true' && process.env[key.toUpperCase()] !== 'false') {
+                    if (process.env[envName] !== 'true' && process.env[envName] !== 'false') {
                         log('error', `Environment variable ${key} is not a boolean`);
                         process.exit(1);
                     }
-                    config[key] = process.env[key.toUpperCase()] === 'true';
+                    config[key] = process.env[envName] === 'true';
                     break;
                 default:
-                    config[key] = process.env[key.toUpperCase()];
+                    config[key] = process.env[envName];
             }
         }
     }
