@@ -7,6 +7,7 @@ import { setupRoutes } from './routes';
 import { initConfig } from './core/config';
 import { initPaseto, setupPaseto } from './core/tokens';
 import { initDocker } from './core/docker';
+import { handleCORS } from './routes/cors';
 
 if (cluster.isPrimary) {
     const config = initConfig();
@@ -53,6 +54,8 @@ if (cluster.isPrimary) {
         app.use(Sentry.Handlers.requestHandler());
         app.use(Sentry.Handlers.tracingHandler());
     }
+
+    app.use(handleCORS);
 
     initPaseto();
     initDocker();

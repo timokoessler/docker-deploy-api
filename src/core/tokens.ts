@@ -64,7 +64,7 @@ export async function initPaseto() {
  * @param expiresIn Expiration time for the token as a string (e.g. '1h')
  * @returns
  */
-export async function generatePasetoToken(data: Record<string, unknown>, expiresIn: string): Promise<string> {
+export async function generateDeployToken(data: Record<string, unknown>, expiresIn: string): Promise<string> {
     try {
         return await paseto.sign({ ...data }, key, {
             expiresIn,
@@ -74,7 +74,7 @@ export async function generatePasetoToken(data: Record<string, unknown>, expires
     }
 }
 
-export async function verifyPasetoToken(token: string): Promise<Record<string, unknown>> {
+export async function verifyDeployToken(token: string): Promise<Record<string, unknown>> {
     try {
         return await paseto.verify(token, key);
     } catch (err) {

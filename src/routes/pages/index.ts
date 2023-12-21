@@ -18,6 +18,7 @@ export default `<!DOCTYPE html>
             align-items: center;
             justify-content: center;
             height: 100vh;
+            text-align: center;
         }
         .emoji {
             font-size: 10rem;
@@ -60,6 +61,16 @@ export default `<!DOCTYPE html>
             color: #555;
             margin: 0 0 2rem 0;
         }
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #555;
+        }
     </style>
 </head>
 <body>
@@ -74,5 +85,6 @@ export default `<!DOCTYPE html>
             </button>
         </a>
     </div>
+    <div class="footer">You can disable this page by setting the environment variable <code>DISABLE_INDEX_PAGE</code> to <code>true</code></div>
 </body>
 </html>`;

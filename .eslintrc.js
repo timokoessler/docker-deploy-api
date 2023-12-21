@@ -1,3 +1,4 @@
+/** @type {import('eslint').Linter.Config} */
 module.exports = {
     root: true,
     parser: '@typescript-eslint/parser',
@@ -16,4 +17,5 @@ module.exports = {
         quotes: ['warn', 'single'],
         semi: ['warn', 'always'],
     },
+    ignorePatterns: ['node_modules/', 'dist/', 'coverage/', 'docs/'],
 };

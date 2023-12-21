@@ -3,7 +3,7 @@ import { MultiSelect, Toggle, Input, Select } from 'enquirer';
 import { getContainerInfoList, initDocker } from './core/docker';
 import ora from 'ora';
 import { DeployToken, DeployTokenAction } from './types';
-import { generatePasetoToken, initPaseto, setupPaseto } from './core/tokens';
+import { generateDeployToken, initPaseto, setupPaseto } from './core/tokens';
 
 (async () => {
     console.log('🐳 Docker Deploy CLI by Timo Kössler');
@@ -101,7 +101,7 @@ import { generatePasetoToken, initPaseto, setupPaseto } from './core/tokens';
         await setupPaseto();
         await initPaseto();
 
-        const deployToken = await generatePasetoToken(tokenConfig, tokenExpiration);
+        const deployToken = await generateDeployToken(tokenConfig, tokenExpiration);
 
         spinner.succeed('Token generated. You can now save it as a secret in your CI/CD system.');
         console.log(deployToken);
