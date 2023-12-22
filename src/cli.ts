@@ -47,6 +47,7 @@ import { generateDeployToken, initPaseto, setupPaseto } from './core/tokens';
         const tokenConfig: DeployToken = {
             containerNames: selectedContainerNames,
             action: DeployTokenAction.PULL_AND_RECREATE,
+            cleanup: true,
         };
         let tokenExpiration = '999y';
 
@@ -94,6 +95,18 @@ import { generateDeployToken, initPaseto, setupPaseto } from './core/tokens';
             default:
                 spinner.fail('Invalid action selected');
                 process.exit(1);
+        }
+
+        if (tokenConfig.action === DeployTokenAction.PULL_AND_RECREATE) {
+            const cleanupPrompt = new Toggle({
+                message: 'Should the old image be removed after pulling the new one?',
+                enabled: 'Yes',
+                disabled: 'No',
+                initial: true,
+            });
+            tokenConfig.cleanup = await cleanupPrompt.run();
+        } else {
+            tokenConfig.cleanup = false;
         }
 
         spinner.text = 'Generating token';

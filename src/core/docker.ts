@@ -93,12 +93,47 @@ export async function restartContainer(container: Docker.Container) {
     }
 }
 
+/**
+ * Get a list of all Docker containers.
+ * @returns A promise that resolves when the list has been retrieved, returns the list, or null if an error occurred.
+ */
 export async function getContainerInfoList() {
     try {
         const containers = await docker.listContainers();
         return containers;
     } catch (error) {
         log('error', `Failed to list containers: ${error.message}`);
+        Sentry.captureException(error);
+        return null;
+    }
+}
+
+/**
+ * Gets a Docker container by its ID.
+ * @param containerID ID of the container to get.
+ * @returns A promise that resolves when the container has been retrieved, returns the container.
+ */
+export function getContainerByID(containerID: string) {
+    try {
+        const container = docker.getContainer(containerID);
+        return container;
+    } catch (error) {
+        log('error', `Failed to get container: ${error.message}`);
+        Sentry.captureException(error);
+        return null;
+    }
+}
+
+/**
+ * Gets a Docker image by its name.
+ * @param imageName Name of the image to get.
+ * @returns The Docker image or null if an error occurred.
+ */
+export function getDockerImage(imageName: string) {
+    try {
+        return docker.getImage(imageName);
+    } catch (error) {
+        log('error', `Failed to get image: ${error.message}`);
         Sentry.captureException(error);
         return null;
     }
