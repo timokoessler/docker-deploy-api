@@ -91,6 +91,7 @@ export function setupRoutes(app: express.Application) {
             for (const { container, info } of deployContainerList) {
                 const containerName = info.Names[0].replace('/', '');
 
+                // Pull and recreate the container
                 if (token.action === DeployTokenAction.PULL_AND_RECREATE) {
                     logAndSave('info', `Pulling image for container ${containerName}`);
                     const oldImageID = info.ImageID;
@@ -107,6 +108,7 @@ export function setupRoutes(app: express.Application) {
                         res.status(500).send(logOutput);
                         return;
                     }
+                    // Remove the old image
                     if (token.cleanup) {
                         const containerInfos = await getContainerInfoList();
                         if (!containerInfos) {
