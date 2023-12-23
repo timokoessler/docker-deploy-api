@@ -33,11 +33,13 @@ export async function pullImage(
                     log('error', `Failed to pull image: ${err.message}`);
                     Sentry.captureException(err);
                     reject(err);
+                    return;
                 }
                 docker.modem.followProgress(stream, (err, result) => {
                     if (err) {
-                        log('error', `Failed to pull image: ${err.message}`);
+                        log('error', `Failed to follow image pull progress: ${err.message}`);
                         reject(err);
+                        return;
                     }
                     resolve(result);
                 });
