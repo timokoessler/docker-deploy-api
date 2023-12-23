@@ -1,0 +1,23 @@
+services:
+    docker-deploy-api:
+        # Use :latest for the latest stable version or :main for the latest commit
+        image: timokoessler/docker-deploy-api:main
+        restart: unless-stopped
+        container_name: docker-deploy-api
+        # Run as root too have permission to access the docker socket
+        user: root
+        volumes:
+            # Data directory to store the private key
+            - ./data:/home/node/data
+            # Mount the docker socket to be able to communicate with the docker daemon
+            - '/var/run/docker.sock:/var/run/docker.sock'
+        ports:
+            # Always use a reverse proxy like nginx to proxy the requests to the api
+            - '127.0.0.1:8080:3000'
+        environment:
+            - URL=http://127.0.0.1:8080 # Not used yet
+            - PORT=3000 # The port the api is listening on (inside the container)
+            - WORKERS=1 # The number of workers to spawn
+            - DISABLE_INDEX_PAGE=false # Disable the index page
+            - SENTRY_DSN= # Sentry DSN to enable error reporting
+

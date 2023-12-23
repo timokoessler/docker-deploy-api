@@ -17,4 +17,4 @@ If a public GitHub issue or discussion is not the right choice for your concern,
 © Timo Kössler 2023
 Released under the [MIT license](https://github.com/timokoessler/docker-deploy-api/blob/main/LICENSE)
 
-Docker and the Docker logo are trademarks or registered trademarks of Docker, Inc. in the United States and/or other countries. Docker, Inc. and other parties may also have trademark rights in other terms used herein.
+<sub><sup>Docker and the Docker logo are trademarks or registered trademarks of Docker, Inc. in the United States and/or other countries. Docker, Inc. and other parties may also have trademark rights in other terms used herein.</sup></sub>

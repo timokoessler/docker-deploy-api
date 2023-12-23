@@ -1,6 +1,6 @@
 // @ts-expect-error Wrong type definitions
 import { MultiSelect, Toggle, Input, Select } from 'enquirer';
-import { getContainerInfoList, initDocker } from './core/docker';
+import { getContainerInfoList, getOwnContainerID, initDocker } from './core/docker';
 import ora from 'ora';
 import { DeployToken, DeployTokenAction } from './types';
 import { generateDeployToken, initPaseto, setupPaseto } from './core/tokens';
@@ -17,12 +17,23 @@ import { generateDeployToken, initPaseto, setupPaseto } from './core/tokens';
         }
         spinner.succeed('Connected to Docker socket');
         spinner.text = 'Fetching container info';
-        const containers = await getContainerInfoList();
+        let containers = await getContainerInfoList();
         if (!Array.isArray(containers) || containers.length === 0) {
             spinner.fail('No containers found');
             process.exit(1);
         }
-        spinner.succeed(`Found ${containers.length} container${containers.length === 1 ? '' : 's'}`);
+        const ownContainerID = await getOwnContainerID();
+
+        containers = containers.filter((container) => container.Id !== ownContainerID);
+
+        if (containers.length === 0) {
+            spinner.fail('No containers found (excluding self)');
+            process.exit(1);
+        }
+
+        spinner.succeed(
+            `Found ${containers.length} container${containers.length === 1 ? '' : 's'}${ownContainerID ? ' (excluding self)' : ''}`,
+        );
 
         const prompt = new MultiSelect({
             name: 'value',

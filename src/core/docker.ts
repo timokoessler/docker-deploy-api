@@ -1,6 +1,7 @@
 import Docker from 'dockerode';
 import { log } from './logger';
 import * as Sentry from '@sentry/node';
+import { readFile } from 'fs/promises';
 
 let docker: Docker;
 
@@ -135,6 +136,17 @@ export function getDockerImage(imageName: string) {
     } catch (error) {
         log('error', `Failed to get image: ${error.message}`);
         Sentry.captureException(error);
+        return null;
+    }
+}
+
+export async function getOwnContainerID() {
+    if (process.env.IS_DOCKER !== 'true') {
+        return null;
+    }
+    try {
+        return (await readFile('/proc/self/cgroup', 'utf8')).split('\n')[0].split('/')[2];
+    } catch (error) {
         return null;
     }
 }
