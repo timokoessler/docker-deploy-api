@@ -8,7 +8,7 @@ if [ -z "$deployToken" ]; then
   exit 1
 fi
 
-echo "Sending request to Docker Deploy API. The deployment can take some time."
+echo "Sending request to Docker Deploy API. The deployment can take some time..."
 
 response=$(curl -X POST -m 300 -H "X-Deploy-Token: $deployToken" -sSLw '\n%{http_code}' "$url")
 

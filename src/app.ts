@@ -18,7 +18,7 @@ if (cluster.isPrimary) {
     }
 
     if (process.env['URL'] === undefined) {
-        log('warn', 'Environment variable URL is not set');
+        log('warn', 'Environment variable URL is not set. This is required for the bash script to work.');
     }
 
     for (let i = 0; i < config.workers; i++) {

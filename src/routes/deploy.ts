@@ -91,6 +91,9 @@ export function setupDeployRoutes(app: express.Application) {
                     const oldImageID = info.ImageID;
                     try {
                         const auth = await getContainerRegistryAuth(info.Image);
+                        if (auth) {
+                            logAndSave('debug', `Logging into registry as ${auth.username}`);
+                        }
                         await pullImage(info.Image, auth);
                     } catch (error) {
                         logAndSave('error', `Failed to pull image for container ${containerName}: ${error.message}`);
