@@ -90,7 +90,7 @@ export async function recreateContainer(container: Docker.Container) {
     } catch (error) {
         log('error', `Failed to recreate container: ${error.message}`);
         Sentry.captureException(error);
-        return null;
+        return undefined;
     }
 }
 
@@ -112,16 +112,16 @@ export async function restartContainer(container: Docker.Container) {
 
 /**
  * Get a list of all Docker containers.
- * @returns A promise that resolves when the list has been retrieved, returns the list, or null if an error occurred.
+ * @returns A promise that resolves when the list has been retrieved, returns the list, or undefined if an error occurred.
  */
 export async function getContainerInfoList() {
     try {
-        const containers = await docker.listContainers();
+        const containers = await docker.listContainers({ all: true });
         return containers;
     } catch (error) {
         log('error', `Failed to list containers: ${error.message}`);
         Sentry.captureException(error);
-        return null;
+        return undefined;
     }
 }
 
@@ -137,14 +137,14 @@ export function getContainerByID(containerID: string) {
     } catch (error) {
         log('error', `Failed to get container: ${error.message}`);
         Sentry.captureException(error);
-        return null;
+        return undefined;
     }
 }
 
 /**
  * Gets a Docker image by its name.
  * @param imageName Name of the image to get.
- * @returns The Docker image or null if an error occurred.
+ * @returns The Docker image or undefined if an error occurred.
  */
 export function getDockerImage(imageName: string) {
     try {
@@ -152,22 +152,22 @@ export function getDockerImage(imageName: string) {
     } catch (error) {
         log('error', `Failed to get image: ${error.message}`);
         Sentry.captureException(error);
-        return null;
+        return undefined;
     }
 }
 
 /**
  * Gets the ID of the container the application is running in, if it is running in a container.
- * @returns The container ID or null if the application is not running in a container.
+ * @returns The container ID or undefined if the application is not running in a container.
  */
 export async function getOwnContainerID() {
     if (process.env.IS_DOCKER !== 'true') {
-        return null;
+        return undefined;
     }
     try {
         return (await readFile('/proc/self/cgroup', 'utf8')).split('\n')[0].split('/')[2];
     } catch (error) {
-        return null;
+        return undefined;
     }
 }
 
@@ -201,7 +201,7 @@ async function checkDockerCredentialStore(): Promise<boolean> {
 /**
  * Gets the login data for a Docker registry from the Docker config file or a custom auth file.
  * @param imageName Name of the image to get the login data for.
- * @returns The login data or null if no login data was found.
+ * @returns The login data or undefined if no login data was found.
  */
 export async function getContainerRegistryAuth(imageName: string): Promise<{
     username: string;
@@ -217,6 +217,12 @@ export async function getContainerRegistryAuth(imageName: string): Promise<{
             if (typeof dockerConfig.auths === 'object') {
                 for (const [registry, content] of Object.entries(dockerConfig.auths as Record<string, { auth: string }>)) {
                     if (host === getContainerRegistryHost(registry)) {
+                        if (typeof content !== 'object') {
+                            return undefined;
+                        }
+                        if (typeof content.auth !== 'string') {
+                            return undefined;
+                        }
                         const auth = Buffer.from(content.auth, 'base64').toString('utf8');
                         const [username, password] = auth.split(':');
                         return { username, password };
@@ -229,7 +235,7 @@ export async function getContainerRegistryAuth(imageName: string): Promise<{
         try {
             await access(authFilePath, fsConstants.R_OK | fsConstants.F_OK);
         } catch {
-            return null;
+            return undefined;
         }
 
         const authFile = await readFile(authFilePath, 'utf8');
@@ -240,7 +246,7 @@ export async function getContainerRegistryAuth(imageName: string): Promise<{
         )) {
             if (host === getContainerRegistryHost(registry)) {
                 if (typeof content !== 'object') {
-                    return null;
+                    return undefined;
                 }
                 if (typeof content.auth === 'string') {
                     const auth = Buffer.from(content.auth, 'base64').toString('utf8');
@@ -253,11 +259,11 @@ export async function getContainerRegistryAuth(imageName: string): Promise<{
             }
         }
 
-        return null;
+        return undefined;
     } catch (error) {
         log('error', `Failed to find login data for pulling image ${imageName}: ${error.message}`);
         Sentry.captureException(error);
-        return null;
+        return undefined;
     }
 }
 

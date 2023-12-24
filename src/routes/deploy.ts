@@ -97,24 +97,35 @@ export function setupDeployRoutes(app: express.Application) {
                         res.status(500).send(logOutput);
                         return;
                     }
-                    logAndSave('info', `Recreating container ${containerName}`);
-                    if (!(await recreateContainer(container))) {
-                        logAndSave('error', `Failed to recreate container ${containerName}`);
+
+                    const containerInfos = await getContainerInfoList();
+                    if (!containerInfos) {
+                        logAndSave('error', `Failed to list containers. Skipping cleanup and recreation of container ${containerName}`);
                         res.status(500).send(logOutput);
                         return;
                     }
+                    const containerInfo = containerInfos.find((c) => c.Names[0] === `/${containerName}`);
+                    if (!containerInfo) {
+                        logAndSave(
+                            'error',
+                            `Failed to get container info for container ${containerName}. Skipping cleanup and recreation.`,
+                        );
+                        res.status(500).send(logOutput);
+                    }
+
+                    if (containerInfo.ImageID !== oldImageID) {
+                        logAndSave('info', `Recreating container ${containerName}`);
+                        if (!(await recreateContainer(container))) {
+                            logAndSave('error', `Failed to recreate container ${containerName}`);
+                            res.status(500).send(logOutput);
+                            return;
+                        }
+                    } else {
+                        logAndSave('info', 'No new image pulled. Skipping recreation.');
+                    }
+
                     // Remove the old image
                     if (token.cleanup) {
-                        const containerInfos = await getContainerInfoList();
-                        if (!containerInfos) {
-                            logAndSave('error', `Failed to list containers. Skipping cleanup for container ${containerName}`);
-                            continue;
-                        }
-                        const containerInfo = containerInfos.find((c) => c.Names[0] === `/${containerName}`);
-                        if (!containerInfo) {
-                            logAndSave('error', `Failed to get container info for container ${containerName}. Skipping cleanup.`);
-                            continue;
-                        }
                         if (containerInfo.ImageID !== oldImageID) {
                             logAndSave('info', `Removing old image for container ${containerName}`);
                             const oldImage = getDockerImage(oldImageID);
