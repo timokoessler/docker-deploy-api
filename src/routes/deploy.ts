@@ -1,7 +1,15 @@
 import express from 'express';
 import { verifyDeployToken } from '../core/tokens';
 import { DeployToken, DeployTokenAction } from '../types';
-import { getContainerByID, getContainerInfoList, getDockerImage, pullImage, recreateContainer, restartContainer } from '../core/docker';
+import {
+    getContainerByID,
+    getContainerInfoList,
+    getContainerRegistryAuth,
+    getDockerImage,
+    pullImage,
+    recreateContainer,
+    restartContainer,
+} from '../core/docker';
 import { Container, ContainerInfo } from 'dockerode';
 import { log } from '../core/logger';
 
@@ -82,7 +90,8 @@ export function setupDeployRoutes(app: express.Application) {
                     logAndSave('info', `Pulling image for container ${containerName}`);
                     const oldImageID = info.ImageID;
                     try {
-                        await pullImage(info.Image);
+                        const auth = await getContainerRegistryAuth(info.Image);
+                        await pullImage(info.Image, auth);
                     } catch (error) {
                         logAndSave('error', `Failed to pull image for container ${containerName}: ${error.message}`);
                         res.status(500).send(logOutput);

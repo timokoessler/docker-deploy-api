@@ -12,9 +12,11 @@ services:
             # Mount the docker socket to be able to communicate with the docker daemon
             - '/var/run/docker.sock:/var/run/docker.sock'
             # Mount the docker config to be able to pull images from private repositories
+            # This is optional and does not work with Docker Desktop (external credential store)
+            # Read more: https://docs.docker.com/engine/reference/commandline/login/#credential-stores
             - '~/.docker/config.json:/home/node/.docker/config.json:ro'
         ports:
-            # Always use a reverse proxy like nginx to proxy the requests to the api
+            # Always use a reverse proxy like nginx to proxy the requests to this container
             - '127.0.0.1:8080:3000'
         environment:
             - URL=http://127.0.0.1:8080 # Not used yet

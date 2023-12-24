@@ -1,15 +1,21 @@
+/* eslint-disable security/detect-object-injection */
 import Docker from 'dockerode';
 import { log } from './logger';
 import * as Sentry from '@sentry/node';
-import { readFile } from 'fs/promises';
+import { access, readFile, constants as fsConstants } from 'fs/promises';
+import { homedir } from 'os';
 
 let docker: Docker;
+let internalCredentialStoreAvailable = false;
 
 export async function initDocker(cli = false) {
     try {
         docker = new Docker();
         await docker.ping();
-        if (!cli) log('info', 'Connected to Docker socket');
+        if (!cli) {
+            internalCredentialStoreAvailable = await checkDockerCredentialStore();
+            log('info', 'Connected to Docker socket');
+        }
         return true;
     } catch (error) {
         if (cli) return false;
@@ -25,10 +31,18 @@ export async function initDocker(cli = false) {
  */
 export async function pullImage(
     imageName: string,
+    auth?: { username: string; password: string },
 ): Promise<{ status: string; progressDetail?: { current: number; total: number }; progress?: string; id?: string }[]> {
     return new Promise((resolve, reject) => {
         try {
-            docker.pull(imageName, {}, (err, stream) => {
+            const config = {};
+            if (typeof auth === 'object' && typeof auth.username === 'string' && typeof auth.password === 'string') {
+                config['authconfig'] = {
+                    username: auth.username,
+                    password: auth.password,
+                };
+            }
+            docker.pull(imageName, config, (err, stream) => {
                 if (err) {
                     log('error', `Failed to pull image: ${err.message}`);
                     Sentry.captureException(err);
@@ -142,6 +156,10 @@ export function getDockerImage(imageName: string) {
     }
 }
 
+/**
+ * Gets the ID of the container the application is running in, if it is running in a container.
+ * @returns The container ID or null if the application is not running in a container.
+ */
 export async function getOwnContainerID() {
     if (process.env.IS_DOCKER !== 'true') {
         return null;
@@ -151,4 +169,108 @@ export async function getOwnContainerID() {
     } catch (error) {
         return null;
     }
+}
+
+/**
+ * Checks if the Docker config file exists and if no external credential store is configured.
+ * @returns True if the file exists and no external credential store is configured, false otherwise.
+ */
+async function checkDockerCredentialStore(): Promise<boolean> {
+    try {
+        await access(`${homedir()}/.docker/config.json`, fsConstants.R_OK | fsConstants.F_OK);
+    } catch {
+        log('info', 'No Docker config found, skip checking credential store.');
+        return false;
+    }
+    try {
+        // eslint-disable-next-line security/detect-non-literal-fs-filename
+        const dockerConfigFile = await readFile(`${homedir()}/.docker/config.json`, 'utf8');
+        const dockerConfig = JSON.parse(dockerConfigFile);
+        if (dockerConfig.credsStore || dockerConfig.credHelpers) {
+            log('warn', 'Can not automatically get login data for private Docker registries, because a credential store is configured.');
+            return false;
+        }
+
+        return true;
+    } catch (error) {
+        log('error', `Failed to check Docker credential store: ${error.message}`);
+        return false;
+    }
+}
+
+/**
+ * Gets the login data for a Docker registry from the Docker config file or a custom auth file.
+ * @param imageName Name of the image to get the login data for.
+ * @returns The login data or null if no login data was found.
+ */
+export async function getContainerRegistryAuth(imageName: string): Promise<{
+    username: string;
+    password: string;
+}> {
+    try {
+        const host = getContainerRegistryHost(imageName);
+
+        if (internalCredentialStoreAvailable) {
+            // eslint-disable-next-line security/detect-non-literal-fs-filename
+            const dockerConfigFile = await readFile(`${homedir()}/.docker/config.json`, 'utf8');
+            const dockerConfig = JSON.parse(dockerConfigFile);
+            if (typeof dockerConfig.auths === 'object') {
+                for (const [registry, content] of Object.entries(dockerConfig.auths as Record<string, { auth: string }>)) {
+                    if (host === getContainerRegistryHost(registry)) {
+                        const auth = Buffer.from(content.auth, 'base64').toString('utf8');
+                        const [username, password] = auth.split(':');
+                        return { username, password };
+                    }
+                }
+            }
+        }
+
+        const authFilePath = `${__dirname}/data/registry-auth.json`;
+        try {
+            await access(authFilePath, fsConstants.R_OK | fsConstants.F_OK);
+        } catch {
+            return null;
+        }
+
+        const authFile = await readFile(authFilePath, 'utf8');
+        const authData = JSON.parse(authFile);
+
+        for (const [registry, content] of Object.entries(
+            authData as Record<string, { auth?: string; username?: string; password?: string }>,
+        )) {
+            if (host === getContainerRegistryHost(registry)) {
+                if (typeof content !== 'object') {
+                    return null;
+                }
+                if (typeof content.auth === 'string') {
+                    const auth = Buffer.from(content.auth, 'base64').toString('utf8');
+                    const [username, password] = auth.split(':');
+                    return { username, password };
+                }
+                if (typeof content.username === 'string' && typeof content.password === 'string') {
+                    return { username: content.username, password: content.password };
+                }
+            }
+        }
+
+        return null;
+    } catch (error) {
+        log('error', `Failed to find login data for pulling image ${imageName}: ${error.message}`);
+        Sentry.captureException(error);
+        return null;
+    }
+}
+
+/**
+ * Converts a Docker image name or a host / url string to a registry host.
+ * @returns The registry host or `docker.io` if no host was found.
+ */
+export function getContainerRegistryHost(tag: string): string {
+    // Remove leading protocol
+    tag = tag.replace(/^[^:]+:\/\//, '');
+    const host = tag.split('/')[0];
+    if (!host.includes('.') || host.includes('.docker.io') || host === 'hub.docker.com') {
+        return 'docker.io';
+    }
+    return host;
 }
