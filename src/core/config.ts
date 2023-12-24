@@ -5,7 +5,7 @@ import { log } from './logger';
 const config = {
     port: 3000,
     ip: '0.0.0.0',
-    url: 'http://localhost:3000',
+    url: 'http://127.0.0.1:3000',
     workers: 1,
     behindProxy: true,
     sentryDsn: '',

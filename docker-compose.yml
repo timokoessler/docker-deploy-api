@@ -19,7 +19,7 @@ services:
             # Always use a reverse proxy like nginx to proxy the requests to this container
             - '127.0.0.1:8080:3000'
         environment:
-            - URL=http://127.0.0.1:8080 # Not used yet
+            - URL=http://127.0.0.1:8080 # Public url of the api
             - PORT=3000 # The port the api is listening on (inside the container)
             - WORKERS=1 # The number of workers to spawn
             - DISABLE_INDEX_PAGE=false # Disable the index page

@@ -17,10 +17,9 @@ if (cluster.isPrimary) {
         log('warn', 'Running in development mode');
     }
 
-    /* Todo: Uncomment when used
     if (process.env['URL'] === undefined) {
         log('warn', 'Environment variable URL is not set');
-    }*/
+    }
 
     for (let i = 0; i < config.workers; i++) {
         cluster.fork();

@@ -6,4 +6,7 @@ export default defineConfig({
     platform: 'node',
     outDir: 'dist',
     noExternal: [/.*/],
+    loader: {
+        '.sh': 'text',
+    },
 });
