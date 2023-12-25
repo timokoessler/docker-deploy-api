@@ -92,7 +92,7 @@ export function setupDeployRoutes(app: express.Application) {
                     try {
                         const auth = await getContainerRegistryAuth(info.Image);
                         if (auth) {
-                            logAndSave('debug', `Logging into registry as ${auth.username}`);
+                            logAndSave('debug', 'Logging into registry');
                         }
                         await pullImage(info.Image, auth);
                     } catch (error) {

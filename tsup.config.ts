@@ -8,5 +8,6 @@ export default defineConfig({
     noExternal: [/.*/],
     loader: {
         '.sh': 'text',
+        '.svg': 'text',
     },
 });

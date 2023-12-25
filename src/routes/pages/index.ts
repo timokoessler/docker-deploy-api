@@ -6,6 +6,7 @@ export default `<!DOCTYPE html>
     <title>Docker Deploy API</title>
     <meta name="robots" content="noindex, nofollow">
     <meta name="author" content="Timo Kössler">
+    <link rel="icon" href="/logo.svg">
     <style>
         body {
             margin: 0;
@@ -21,8 +22,9 @@ export default `<!DOCTYPE html>
             text-align: center;
         }
         .emoji {
-            font-size: 10rem;
-            margin-bottom: 1rem;
+            height: 10rem;
+            margin-bottom: 1.5rem;
+            max-width: 100%;
         }
         h1 {
             font-size: 2rem;
@@ -75,7 +77,7 @@ export default `<!DOCTYPE html>
 </head>
 <body>
     <div class="container">
-        <div class="emoji">🐳</div>
+        <img class="emoji" src="/logo.svg">
         <h1>Docker Deploy API</h1>
         <p class="description">An easy-to-use API for deploying Docker containers</p>
         <a href="https://github.com/timokoessler/docker-deploy-api" target="_blank" rel="noopener noreferrer">
