@@ -210,6 +210,37 @@ export async function getContainerRegistryAuth(imageName: string): Promise<{
     try {
         const host = getContainerRegistryHost(imageName);
 
+        const authFilePath = `${__dirname}/data/registry-auth.json`;
+        let authFileExists = false;
+        try {
+            await access(authFilePath, fsConstants.R_OK | fsConstants.F_OK);
+            authFileExists = true;
+        } catch {
+            authFileExists = false;
+        }
+
+        if (authFileExists) {
+            const authFile = await readFile(authFilePath, 'utf8');
+            const authData = JSON.parse(authFile);
+            for (const [registry, content] of Object.entries(
+                authData as Record<string, { auth?: string; username?: string; password?: string }>,
+            )) {
+                if (host === getContainerRegistryHost(registry)) {
+                    if (typeof content !== 'object') {
+                        return undefined;
+                    }
+                    if (typeof content.auth === 'string') {
+                        const auth = Buffer.from(content.auth, 'base64').toString('utf8');
+                        const [username, password] = auth.split(':');
+                        return { username, password };
+                    }
+                    if (typeof content.username === 'string' && typeof content.password === 'string') {
+                        return { username: content.username, password: content.password };
+                    }
+                }
+            }
+        }
+
         if (internalCredentialStoreAvailable) {
             // eslint-disable-next-line security/detect-non-literal-fs-filename
             const dockerConfigFile = await readFile(`${homedir()}/.docker/config.json`, 'utf8');
@@ -227,34 +258,6 @@ export async function getContainerRegistryAuth(imageName: string): Promise<{
                         const [username, password] = auth.split(':');
                         return { username, password };
                     }
-                }
-            }
-        }
-
-        const authFilePath = `${__dirname}/data/registry-auth.json`;
-        try {
-            await access(authFilePath, fsConstants.R_OK | fsConstants.F_OK);
-        } catch {
-            return undefined;
-        }
-
-        const authFile = await readFile(authFilePath, 'utf8');
-        const authData = JSON.parse(authFile);
-
-        for (const [registry, content] of Object.entries(
-            authData as Record<string, { auth?: string; username?: string; password?: string }>,
-        )) {
-            if (host === getContainerRegistryHost(registry)) {
-                if (typeof content !== 'object') {
-                    return undefined;
-                }
-                if (typeof content.auth === 'string') {
-                    const auth = Buffer.from(content.auth, 'base64').toString('utf8');
-                    const [username, password] = auth.split(':');
-                    return { username, password };
-                }
-                if (typeof content.username === 'string' && typeof content.password === 'string') {
-                    return { username: content.username, password: content.password };
                 }
             }
         }

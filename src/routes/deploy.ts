@@ -1,10 +1,11 @@
 import express from 'express';
-import { verifyDeployToken } from '../core/tokens';
+import { isTokenRevoked, verifyDeployToken } from '../core/tokens';
 import { DeployToken, DeployTokenAction } from '../types';
 import {
     getContainerByID,
     getContainerInfoList,
     getContainerRegistryAuth,
+    getContainerRegistryHost,
     getDockerImage,
     pullImage,
     recreateContainer,
@@ -25,7 +26,13 @@ export function setupDeployRoutes(app: express.Application) {
             const token = (await verifyDeployToken(deployToken)) as DeployToken;
             if (!token) {
                 log('warn', `Received request with invalid deploy token from ${req.ip}`);
-                res.status(401).send('Error: Invalid X-Deploy-Token header');
+                res.status(401).send('Error: Invalid deploy token');
+                return;
+            }
+
+            if (isTokenRevoked(deployToken)) {
+                log('warn', `Received request with revoked deploy token from ${req.ip}`);
+                res.status(401).send('Error: Deploy token has been revoked');
                 return;
             }
 
@@ -92,7 +99,7 @@ export function setupDeployRoutes(app: express.Application) {
                     try {
                         const auth = await getContainerRegistryAuth(info.Image);
                         if (auth) {
-                            logAndSave('debug', 'Logging into registry');
+                            logAndSave('info', `Logging in to registry ${getContainerRegistryHost(info.Image)}`);
                         }
                         await pullImage(info.Image, auth);
                     } catch (error) {

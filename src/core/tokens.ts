@@ -2,10 +2,12 @@ import { V4 as paseto } from 'paseto';
 import { writeFile, readFile, access, constants as fsConstants } from 'node:fs/promises';
 import { KeyObject } from 'node:crypto';
 import { log } from './logger';
+import { sha512 } from './helpers';
 
 const keyDir = __dirname + '/data';
 const keyPath = `${keyDir}/key.pem`;
 let key: KeyObject;
+let revokedTokens: string[] = [];
 
 /**
  * Generates a new key for PASETO if none exists and saves it to disk
@@ -48,13 +50,48 @@ export async function setupPaseto() {
  * Loads the key for PASETO from disk
  * Should be called once on startup from the worker processes
  */
-export async function initPaseto() {
+export async function initPaseto(cli = false) {
     try {
         const keyTxt = await readFile(keyPath, 'ascii');
         key = paseto.bytesToKeyObject(Buffer.from(keyTxt, 'base64'));
     } catch (err) {
         log('error', `Error reading key for authentication: ${err.message}`);
         process.exit(1);
+    }
+
+    let revokedFileExists = false;
+    try {
+        await access(`${__dirname}/data/revoked-tokens.json`, fsConstants.F_OK);
+        revokedFileExists = true;
+    } catch {
+        revokedFileExists = false;
+    }
+
+    if (revokedFileExists) {
+        try {
+            revokedTokens = JSON.parse(await readFile(`${__dirname}/data/revoked-tokens.json`, 'ascii'));
+            if (!Array.isArray(revokedTokens)) {
+                log(
+                    'error',
+                    'Failed to read revoked tokens file, please make sure that the file only contains an array of strings in valid JSON format',
+                );
+                process.exit(1);
+            }
+        } catch {
+            log(
+                'error',
+                'Failed to read revoked tokens file, please make sure that the file only contains an array of strings in valid JSON format',
+            );
+            process.exit(1);
+        }
+    }
+
+    if (!cli) {
+        if (revokedTokens.length > 0) {
+            log('info', `Found ${revokedTokens.length} revoked tokens`);
+        } else {
+            log('info', 'No revoked tokens found');
+        }
     }
 }
 
@@ -74,10 +111,24 @@ export async function generateDeployToken(data: Record<string, unknown>, expires
     }
 }
 
+/**
+ * Parses and verifies a PASETO token
+ * @param token The token to be verified
+ * @returns the data stored in the token or undefined if the token is invalid
+ */
 export async function verifyDeployToken(token: string): Promise<Record<string, unknown>> {
     try {
         return await paseto.verify(token, key);
     } catch (err) {
         return undefined;
     }
+}
+
+/**
+ * Checks if a token has been revoked
+ * @param token The token to be checked against the list of revoked tokens
+ * @returns true if the token has been revoked, false otherwise
+ */
+export function isTokenRevoked(token: string): boolean {
+    return revokedTokens.includes(sha512(token));
 }

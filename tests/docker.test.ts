@@ -1,5 +1,5 @@
 beforeAll(async () => {
-    console.log('TODO: Implement tests');
+    throw new Error('Not implemented yet');
 });
 
 test('...', async () => {});
