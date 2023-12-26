@@ -12,8 +12,8 @@ import { cliAddRegistryAuth } from './cli/addRegistryAuth';
         message: 'What do you want to do?',
         choices: [
             { name: 'Generate a Deploy Token' },
-            { name: 'Revoke a Deploy Token' },
             { name: 'Add registry login data' },
+            { name: 'Revoke a Deploy Token' },
             { name: 'Exit' },
         ],
         initial: 0,
@@ -26,11 +26,11 @@ import { cliAddRegistryAuth } from './cli/addRegistryAuth';
             case 'Generate a Deploy Token':
                 await cliGenerateToken();
                 break;
-            case 'Revoke a Deploy Token':
-                await cliRevokeToken();
-                break;
             case 'Add registry login data':
                 await cliAddRegistryAuth();
+                break;
+            case 'Revoke a Deploy Token':
+                await cliRevokeToken();
                 break;
             case 'Exit':
                 process.exit(0);
