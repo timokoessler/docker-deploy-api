@@ -10,7 +10,7 @@ fi
 
 echo "Sending request to Docker Deploy API. The deployment can take some time..."
 
-response=$(curl -X POST -m 300 -H "X-Deploy-Token: $deployToken" -sSLw '\n%{http_code}' "$url")
+response=$(curl -X POST -m {{TIMEOUT}} -H "X-Deploy-Token: $deployToken" -sSLw '\n%{http_code}' "$url")
 
 # Extract the response body and status code
 body=$(echo "$response" | head -n -1)

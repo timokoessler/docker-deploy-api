@@ -27,12 +27,12 @@ export function setupRoutes(app: express.Application) {
 
     app.get('/s', (req, res) => {
         res.type('text/plain');
-        res.send(requestSh.replaceAll('{{URL}}', getConfig().url));
+        res.send(requestSh.replace('{{URL}}', getConfig().url).replace('{{TIMEOUT}}', getConfig().scriptTimeout.toString()));
     });
 
     app.get('/pwsh', (req, res) => {
         res.type('text/plain');
-        res.send(requestPs1.replaceAll('{{URL}}', getConfig().url));
+        res.send(requestPs1.replace('{{URL}}', getConfig().url).replace('{{TIMEOUT}}', getConfig().scriptTimeout.toString()));
     });
 
     setupDeployRoutes(app);

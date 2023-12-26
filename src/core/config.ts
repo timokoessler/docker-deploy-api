@@ -10,6 +10,7 @@ const config = {
     behindProxy: true,
     sentryDsn: '',
     disableIndexPage: false,
+    scriptTimeout: 300, // seconds
 };
 
 function toEnvName(key: string) {

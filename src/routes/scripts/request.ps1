@@ -14,7 +14,7 @@ Write-Host "Sending request to Docker Deploy API. The deployment can take some t
 try {
     $response = Invoke-RestMethod -Uri $url -Method Post -Headers @{
         "X-Deploy-Token" = $deployToken
-    } -TimeoutSec 300
+    } -TimeoutSec {{TIMEOUT}}
 } catch {
     Write-Host -ForegroundColor Red "Request failed with status code $($_.Exception.Response.StatusCode.value__)"
     if ($PSVersionTable.PSVersion.Major -lt 6) {
