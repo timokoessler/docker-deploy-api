@@ -32,6 +32,7 @@ if (cluster.isPrimary) {
 } else {
     const app: express.Application = express();
     const config = initConfig();
+    app.disable('x-powered-by');
 
     if (config.behindProxy) {
         app.set('trust proxy', ['loopback', 'linklocal', 'uniquelocal']);

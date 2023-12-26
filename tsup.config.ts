@@ -9,5 +9,6 @@ export default defineConfig({
     loader: {
         '.sh': 'text',
         '.svg': 'text',
+        '.ps1': 'text',
     },
 });
