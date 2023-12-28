@@ -4,10 +4,31 @@ An easy-to-use API for deploying Docker containers to a server.
 
 ## Getting started
 
-**Work in progress.**
+> [!WARNING]  
+> This software is still a work in progress and not released yet.
 
 Let's say you build a Docker image for your application using a CI/CD pipeline and upload the image to a Docker registry.
 But how do you update the running containers on your servers with the new image? You can use Docker Deploy API to do that.
+
+## Features
+
+-   Pull new image and recreate container, or only recreate or restart a container
+-   Update multiple containers at once
+-   Clean up old images 🧹
+-   Works with private Docker registries 🔒
+-   Works without any database
+-   Support for nearly any CI/CD pipeline, e.g. GitHub Actions, GitLab CI, etc.
+
+## Installation
+
+> [!TIP]
+> You can find all information about the installation, configuration and usage in the [documentation](https://deploy-api.tkoessler.de).
+
+## How it works
+
+Docker Deploy API is a HTTP API that you can call from your CI/CD pipeline. The request contains a deploy token that you can generate using the CLI tool.
+This token is used to authenticate the request and contains the configuration for the deployment.
+For convenience, there is a bash script that you can use in your CI/CD pipeline for sending the request.
 
 ## Contact
 
