@@ -23,11 +23,13 @@ export async function cliGenerateToken() {
         }
         const ownContainerID = await getOwnContainerID();
 
-        containers = containers.filter((container) => container.Id !== ownContainerID);
+        if (ownContainerID) {
+            containers = containers.filter((container) => container.Id !== ownContainerID);
 
-        if (containers.length === 0) {
-            spinner.fail('No containers found (excluding self)');
-            process.exit(1);
+            if (containers.length === 0) {
+                spinner.fail('No containers found (excluding self)');
+                process.exit(1);
+            }
         }
 
         spinner.succeed(
