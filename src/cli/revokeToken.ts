@@ -4,7 +4,7 @@ import ora from 'ora';
 import { initPaseto, setupPaseto, verifyDeployToken } from '../core/tokens';
 import { DeployToken } from '../types';
 import { access, constants as fsConstants, readFile, writeFile } from 'fs/promises';
-import { createHash } from 'crypto';
+import { sha512 } from '../core/helpers';
 
 export async function cliRevokeToken() {
     const tokenPrompt = new Input({
@@ -55,7 +55,7 @@ export async function cliRevokeToken() {
         revokedTokens = [];
     }
 
-    const tokenHash = createHash('sha512').update(inputToken).digest('hex');
+    const tokenHash = sha512(inputToken);
     if (revokedTokens.includes(tokenHash)) {
         spinner.fail('The token you entered is already revoked');
         process.exit(1);
