@@ -1,12 +1,14 @@
+/* eslint-disable security/detect-non-literal-fs-filename */
 /* eslint-disable security/detect-object-injection */
 // @ts-expect-error Wrong type definitions
 import { Input, Toggle, Password } from 'enquirer';
 import { getContainerRegistryHost } from '../core/docker';
 import { access, constants as fsConstants, readFile, writeFile } from 'fs/promises';
 import ora from 'ora';
+import { getDataDir } from '../core/helpers';
 
 export async function cliAddRegistryAuth() {
-    const authFilePath = `${__dirname}/data/registry-auth.json`;
+    const authFilePath = `${getDataDir()}/registry-auth.json`;
     let fileExists = false;
     try {
         await access(authFilePath, fsConstants.F_OK);

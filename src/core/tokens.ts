@@ -1,11 +1,10 @@
+/* eslint-disable security/detect-non-literal-fs-filename */
 import { V4 as paseto } from 'paseto';
 import { writeFile, readFile, access, constants as fsConstants } from 'node:fs/promises';
 import { KeyObject } from 'node:crypto';
 import { log } from './logger';
-import { sha512 } from './helpers';
+import { getDataDir, sha512 } from './helpers';
 
-const keyDir = __dirname + '/data';
-const keyPath = `${keyDir}/key.pem`;
 let key: KeyObject;
 let revokedTokens: string[] = [];
 
@@ -15,29 +14,32 @@ let revokedTokens: string[] = [];
  */
 export async function setupPaseto() {
     try {
-        await access(keyDir, fsConstants.W_OK | fsConstants.R_OK | fsConstants.F_OK);
+        await access(getDataDir(), fsConstants.W_OK | fsConstants.R_OK | fsConstants.F_OK);
     } catch {
         if (process.platform === 'win32') {
             log(
                 'error',
-                `Accessing directory "${keyDir.replaceAll('/', '\\')}" failed. Please make sure it exists and user has write permissions`,
+                `Accessing directory "${getDataDir().replaceAll(
+                    '/',
+                    '\\',
+                )}" failed. Please make sure it exists and user has write permissions`,
             );
             process.exit(1);
         }
         log(
             'error',
-            `Accessing directory "${keyDir}" failed. Please make sure it exists and user with id ${process.getuid()} has write permissions`,
+            `Accessing directory "${getDataDir()}" failed. Please make sure it exists and user with id ${process.getuid()} has write permissions`,
         );
         process.exit(1);
     }
 
     try {
-        await access(keyPath, fsConstants.W_OK | fsConstants.R_OK | fsConstants.F_OK);
+        await access(`${getDataDir()}/key.pem`, fsConstants.W_OK | fsConstants.R_OK | fsConstants.F_OK);
     } catch {
         try {
             log('info', 'No key found, generating new key');
             const newKey = paseto.keyObjectToBytes(await paseto.generateKey('public'));
-            await writeFile(keyPath, newKey.toString('base64'), 'ascii');
+            await writeFile(`${getDataDir()}/key.pem`, newKey.toString('base64'), 'ascii');
             log('info', 'Key generated');
         } catch (err) {
             log('error', `Error generating and saving key: ${err.message}`);
@@ -52,7 +54,7 @@ export async function setupPaseto() {
  */
 export async function initPaseto(cli = false) {
     try {
-        const keyTxt = await readFile(keyPath, 'ascii');
+        const keyTxt = await readFile(`${getDataDir()}/key.pem`, 'ascii');
         key = paseto.bytesToKeyObject(Buffer.from(keyTxt, 'base64'));
     } catch (err) {
         log('error', `Error reading key for authentication: ${err.message}`);
@@ -61,7 +63,7 @@ export async function initPaseto(cli = false) {
 
     let revokedFileExists = false;
     try {
-        await access(`${__dirname}/data/revoked-tokens.json`, fsConstants.F_OK);
+        await access(`${getDataDir()}/revoked-tokens.json`, fsConstants.F_OK);
         revokedFileExists = true;
     } catch {
         revokedFileExists = false;
@@ -69,7 +71,7 @@ export async function initPaseto(cli = false) {
 
     if (revokedFileExists) {
         try {
-            revokedTokens = JSON.parse(await readFile(`${__dirname}/data/revoked-tokens.json`, 'ascii'));
+            revokedTokens = JSON.parse(await readFile(`${getDataDir()}/revoked-tokens.json`, 'ascii'));
             if (!Array.isArray(revokedTokens)) {
                 log(
                     'error',

@@ -1,7 +1,13 @@
 import chalk from 'chalk';
-import { isDev } from './helpers';
+import { isDev, isTest } from './helpers';
 
 export function log(level: 'error' | 'warn' | 'info' | 'debug', content: string | object) {
+    if (isTest()) {
+        if (level === 'error') {
+            throw new Error(content.toString());
+        }
+        return;
+    }
     let txt: string;
     if (typeof content === 'string') {
         txt = content;

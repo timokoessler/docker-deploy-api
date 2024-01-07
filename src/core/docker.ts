@@ -4,6 +4,7 @@ import { log } from './logger';
 import * as Sentry from '@sentry/node';
 import { access, readFile, constants as fsConstants } from 'fs/promises';
 import { homedir } from 'os';
+import { getDataDir, isTest } from './helpers';
 
 let docker: Docker;
 let internalCredentialStoreAvailable = false;
@@ -187,7 +188,11 @@ async function checkDockerCredentialStore(): Promise<boolean> {
         const dockerConfigFile = await readFile(`${homedir()}/.docker/config.json`, 'utf8');
         const dockerConfig = JSON.parse(dockerConfigFile);
         if (dockerConfig.credsStore || dockerConfig.credHelpers) {
-            log('warn', 'Can not automatically get login data for private Docker registries, because a credential store is configured.');
+            if (!isTest())
+                log(
+                    'warn',
+                    'Can not automatically get login data for private Docker registries, because a credential store is configured.',
+                );
             return false;
         }
 
@@ -210,7 +215,7 @@ export async function getContainerRegistryAuth(imageName: string): Promise<{
     try {
         const host = getContainerRegistryHost(imageName);
 
-        const authFilePath = `${__dirname}/data/registry-auth.json`;
+        const authFilePath = `${getDataDir()}/registry-auth.json`;
         let authFileExists = false;
         try {
             await access(authFilePath, fsConstants.R_OK | fsConstants.F_OK);
@@ -220,6 +225,7 @@ export async function getContainerRegistryAuth(imageName: string): Promise<{
         }
 
         if (authFileExists) {
+            // eslint-disable-next-line security/detect-non-literal-fs-filename
             const authFile = await readFile(authFilePath, 'utf8');
             const authData = JSON.parse(authFile);
             for (const [registry, content] of Object.entries(
@@ -282,4 +288,12 @@ export function getContainerRegistryHost(tag: string): string {
         return 'docker.io';
     }
     return host;
+}
+
+/**
+ * Gets the Dockerode instance.
+ * @returns The Dockerode instance.
+ */
+export function getDockerConnection() {
+    return docker;
 }

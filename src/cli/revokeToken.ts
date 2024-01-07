@@ -1,10 +1,11 @@
+/* eslint-disable security/detect-non-literal-fs-filename */
 // @ts-expect-error Wrong type definitions
 import { Input } from 'enquirer';
 import ora from 'ora';
 import { initPaseto, setupPaseto, verifyDeployToken } from '../core/tokens';
 import { DeployToken } from '../types';
 import { access, constants as fsConstants, readFile, writeFile } from 'fs/promises';
-import { sha512 } from '../core/helpers';
+import { getDataDir, sha512 } from '../core/helpers';
 
 export async function cliRevokeToken() {
     const tokenPrompt = new Input({
@@ -28,7 +29,7 @@ export async function cliRevokeToken() {
         process.exit(1);
     }
 
-    const revokedFile = `${__dirname}/data/revoked-tokens.json`;
+    const revokedFile = `${getDataDir()}/revoked-tokens.json`;
     let fileExists = false;
     try {
         await access(revokedFile, fsConstants.F_OK);
