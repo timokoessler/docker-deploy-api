@@ -2,6 +2,12 @@
 
 An easy-to-use API for deploying Docker containers to a server.
 
+[![license](https://badgen.net/docker/pulls/timokoessler/docker-deploy-api)](https://hub.docker.com/r/timokoessler/docker-deploy-api)
+[![license](https://badgen.net/github/license/timokoessler/docker-deploy-api)](https://github.com/timokoessler/docker-deploy-api/blob/main/LICENSE)
+[![Known Vulnerabilities](https://snyk.io/test/github/timokoessler/docker-deploy-api/badge.svg)](https://snyk.io/test/github/timokoessler/docker-deploy-api)
+[![CodeFactor](https://www.codefactor.io/repository/github/timokoessler/docker-deploy-api/badge)](https://www.codefactor.io/repository/github/timokoessler/docker-deploy-api)
+[![codecov](https://codecov.io/gh/timokoessler/docker-deploy-api/graph/badge.svg?token=VYS4DJZOP3)](https://codecov.io/gh/timokoessler/docker-deploy-api)
+
 > [!WARNING]  
 > This software is still a work in progress and not released yet.
 
