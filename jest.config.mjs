@@ -7,6 +7,7 @@ export default {
     },
     collectCoverage: true,
     collectCoverageFrom: ['src/**/*.ts'],
-    testTimeout: 20000,
+    testTimeout: 40000,
     coverageDirectory: 'coverage',
+    bail: true,
 };

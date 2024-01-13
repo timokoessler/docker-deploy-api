@@ -28,3 +28,9 @@ export async function createDockerTestContainer() {
     await container.start();
     return container;
 }
+
+export function timeDiff(time1: Date | string | number, time2: Date | string | number) {
+    const t1 = new Date(time1).getTime();
+    const t2 = new Date(time2).getTime();
+    return t2 - t1;
+}

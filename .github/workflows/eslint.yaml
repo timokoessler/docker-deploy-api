@@ -10,13 +10,14 @@ jobs:
     lint:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v3
+            - name: Checkout repository ⬇️
+              uses: actions/checkout@v3
             - name: Use Node.js 20
               uses: actions/setup-node@v3
               with:
                   node-version: 20.x
                   cache: 'npm'
-            - name: Install dependencies
+            - name: Install dependencies 📦
               run: npm ci
-            - name: Run ESLint
+            - name: Run ESLint ▶️
               run: npm run lint
