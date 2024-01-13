@@ -13,6 +13,9 @@ let testContainer: Container;
 let imageHash: string;
 
 process.env.NODE_ENV = 'TEST';
+process.env.PORT = '3000';
+process.env.IP = '127.0.0.1';
+process.env.DISABLE_INDEX_PAGE = 'false';
 
 beforeAll(async () => {
     app = await initServer();
@@ -39,20 +42,22 @@ async function checkContainer({ recreated = false, restarted = false, pulled = f
     expect(containerInfo.Config.Labels['docker-deploy-api']).toBe('test');
 
     if (recreated) {
+        expect(timeDiff(containerInfo.Created, Date.now())).toBeLessThan(3000);
         expect(timeDiff(containerInfo.Created, containerInfo.State.StartedAt)).toBeLessThan(2000);
     }
 
     if (pulled) {
-        expect(container!.Image).not.toEqual(imageHash);
+        expect(containerInfo.Image).not.toEqual(imageHash);
     } else if (imageHash) {
-        expect(container!.Image).toBe(imageHash);
+        expect(containerInfo.Image).toBe(imageHash);
     }
 
     if (restarted) {
+        expect(timeDiff(containerInfo.State.StartedAt, Date.now())).toBeLessThan(3000);
         expect(timeDiff(containerInfo.Created, containerInfo.State.StartedAt)).toBeGreaterThan(3000);
     }
 
-    imageHash = container!.Image;
+    imageHash = containerInfo.Image;
 }
 
 test('HTTP GET /', async () => {
@@ -106,7 +111,7 @@ test('Create test container', async () => {
     await checkContainer({});
 });
 
-test('Generate deploy token', async () => {
+test('Generate deploy token (pull & recreate)', async () => {
     const tokenCofig: DeployToken = {
         containerNames: ['docker-deploy-api-test'],
         action: DeployTokenAction.PULL_AND_RECREATE,
@@ -117,7 +122,7 @@ test('Generate deploy token', async () => {
     expect(deployToken.length).toBeGreaterThan(0);
 });
 
-test('HTTP POST /v1/deploy (recreate, pull)', async () => {
+test('HTTP POST /v1/deploy (pull & recreate)', async () => {
     return request(app).post('/v1/deploy').set('X-Deploy-Token', deployToken).timeout(30000).expect(200);
 });
 
@@ -125,11 +130,11 @@ test('Check recreated container', async () => {
     await checkContainer({ recreated: true, pulled: true });
 });
 
-test('Generate restart deploy token', async () => {
+test('Generate deploy token (restart)', async () => {
     const tokenCofig: DeployToken = {
         containerNames: ['docker-deploy-api-test'],
         action: DeployTokenAction.RESTART,
-        cleanup: true,
+        cleanup: false,
     };
     deployToken = await generateDeployToken(tokenCofig, '1min');
     expect(deployToken).toBeTruthy();
@@ -142,6 +147,25 @@ test('HTTP POST /v1/deploy (restart)', async () => {
 
 test('Check restarted container', async () => {
     await checkContainer({ restarted: true });
+});
+
+test('Generate deploy token (recreate)', async () => {
+    const tokenCofig: DeployToken = {
+        containerNames: ['docker-deploy-api-test'],
+        action: DeployTokenAction.RECREATE,
+        cleanup: false,
+    };
+    deployToken = await generateDeployToken(tokenCofig, '1min');
+    expect(deployToken).toBeTruthy();
+    expect(deployToken.length).toBeGreaterThan(0);
+});
+
+test('HTTP POST /v1/deploy (recreate)', async () => {
+    return request(app).post('/v1/deploy').set('X-Deploy-Token', deployToken).timeout(30000).expect(200);
+});
+
+test('Check recreated container', async () => {
+    await checkContainer({ recreated: true });
 });
 
 afterAll(async () => {

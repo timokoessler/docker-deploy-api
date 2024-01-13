@@ -2,8 +2,6 @@
 
 An easy-to-use API for deploying Docker containers to a server.
 
-## Getting started
-
 > [!WARNING]  
 > This software is still a work in progress and not released yet.
 
@@ -13,16 +11,19 @@ But how do you update the running containers on your servers with the new image?
 ## Features
 
 -   Pull new image and recreate container, or only recreate or restart a container
--   Update multiple containers at once
+-   Update multiple containers at once 🔄️
 -   Clean up old images 🧹
 -   Works with private Docker registries 🔒
+-   No need to give your CI/CD pipeline SSH access to your servers 🛡️
 -   Works without any database
 -   Support for nearly any CI/CD pipeline, e.g. GitHub Actions, GitLab CI, etc.
 
-## Installation
+## Installation 🚀
 
 > [!TIP]
 > You can find all information about the installation, configuration and usage in the [documentation](https://deploy-api.tkoessler.de).
+
+The easiest way to set up Docker Deploy API is to use the provied [docker-compose](https://github.com/timokoessler/docker-deploy-api/blob/main/docker-compose.yml) file.
 
 ## How it works
 
@@ -38,7 +39,7 @@ If a public GitHub issue or discussion is not the right choice for your concern,
 
 ## License
 
-© Timo Kössler 2024
+© Timo Kössler 2024  
 Released under the [MIT license](https://github.com/timokoessler/docker-deploy-api/blob/main/LICENSE)
 
 <sub><sup>Docker and the Docker logo are trademarks or registered trademarks of Docker, Inc. in the United States and/or other countries. Docker, Inc. and other parties may also have trademark rights in other terms used herein.The whale logo is licensed under the MIT license - © Microsoft Corporation (fluentui-emoji).</sup></sub>
