@@ -9,7 +9,8 @@ on:
 jobs:
     test:
         runs-on: ubuntu-latest
-
+        env:
+            GITLAB_AUTH_TOKEN: ${{ secrets.GITLAB_AUTH_TOKEN }}
         steps:
             - name: Checkout repository ⬇️
               uses: actions/checkout@v3
