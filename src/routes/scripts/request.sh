@@ -8,6 +8,11 @@ if [ -z "$deployToken" ]; then
   exit 1
 fi
 
+if ! command -v curl &> /dev/null; then
+  echo -e "\e[31mCurl is not available\e[0m"
+  exit 1
+fi
+
 echo "Sending request to Docker Deploy API. The deployment can take some time..."
 
 response=$(curl -X POST -m {{TIMEOUT}} -H "X-Deploy-Token: $deployToken" -sSLw '\n%{http_code}' "$url")

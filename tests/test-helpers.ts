@@ -15,11 +15,11 @@ export async function sleep(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export async function createDockerTestContainer() {
+export async function createDockerTestContainer(name: string, image: string) {
     const docker = getDockerConnection();
     const container = await docker.createContainer({
-        Image: 'busybox',
-        name: 'docker-deploy-api-test',
+        Image: image,
+        name: name,
         Labels: {
             'docker-deploy-api': 'test',
         },

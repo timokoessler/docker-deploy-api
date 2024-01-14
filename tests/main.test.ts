@@ -106,7 +106,7 @@ test('Pull old version of busybox', async () => {
 });
 
 test('Create test container', async () => {
-    testContainer = await createDockerTestContainer();
+    testContainer = await createDockerTestContainer('docker-deploy-api-test', 'busybox:latest');
     await sleep(100);
     await checkContainer({});
 });

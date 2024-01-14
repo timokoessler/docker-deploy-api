@@ -59,7 +59,7 @@ export function setupDeployRoutes(app: express.Application) {
                 const containerInfo = containerInfos.find((c) => c.Names[0] === `/${containerName}`);
                 if (!containerInfo) {
                     res.status(404).send(`Error: Can not find container info for ${containerName}`);
-                    log('error', `Can not find container info for ${containerName}`);
+                    log('warn', `Can not find container info for ${containerName}`);
                     return;
                 }
                 const container = await getContainerByID(containerInfo.Id);
