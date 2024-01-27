@@ -104,3 +104,13 @@ test('HTTP POST /v1/deploy (token without action)', async () => {
     expect(response.status).toEqual(400);
     expect(response.text).toEqual('Error: No or invalid action specified');
 });
+
+test('Generate deploy token with invalid expiration', async () => {
+    const tokenCofig: DeployToken = {
+        containerNames: ['docker-deploy-api-test'],
+        action: DeployTokenAction.PULL_AND_RECREATE,
+        cleanup: true,
+    };
+    deployToken = await generateDeployToken(tokenCofig, 'test');
+    expect(deployToken).toBeUndefined();
+});

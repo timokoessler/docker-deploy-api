@@ -3,7 +3,7 @@ import request from 'supertest';
 import { initServer, sleep, timeDiff } from './test-helpers';
 import { Container } from 'dockerode';
 import { createDockerTestContainer } from './test-helpers';
-import { getContainerByID, getContainerInfoList, getDockerImage, pullImage } from '../src/core/docker';
+import { getContainerByID, getContainerInfoList, getDockerImage, getOwnContainerID, pullImage } from '../src/core/docker';
 import { DeployToken, DeployTokenAction } from '../src/types';
 import { generateDeployToken } from '../src/core/tokens';
 
@@ -166,6 +166,11 @@ test('HTTP POST /v1/deploy (recreate)', async () => {
 
 test('Check recreated container', async () => {
     await checkContainer({ recreated: true });
+});
+
+test('Get own container id should be undefined', async () => {
+    const containerID = await getOwnContainerID();
+    expect(containerID).toBeUndefined();
 });
 
 afterAll(async () => {
