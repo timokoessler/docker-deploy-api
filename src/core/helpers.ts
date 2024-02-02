@@ -1,8 +1,8 @@
 import { createHash } from 'crypto';
 
-export const isDev = () => process.env.NODE_ENV.toLowerCase() !== 'production';
+export const isDev = () => process.env.NODE_ENV?.toLowerCase() !== 'production';
 
-export const isTest = () => process.env.NODE_ENV.toLowerCase() === 'test';
+export const isTest = () => process.env.NODE_ENV?.toLowerCase() === 'test';
 
 export const getDataDir = () => (!isTest() ? __dirname + '/data' : __dirname + '/../../tests/data');
 

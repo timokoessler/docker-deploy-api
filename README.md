@@ -37,6 +37,17 @@ Docker Deploy API is a HTTP API that you can call from your CI/CD pipeline. The 
 This token is used to authenticate the request and contains the configuration for the deployment.
 For convenience, there is a bash script that you can use in your CI/CD pipeline for sending the request.
 
+## GitHub Actions example
+
+The following example shows how to use Docker Deploy API in a GitHub Actions workflow using the helper bash script that is hosted by every instance of Docker Deploy API.
+
+```yaml
+- name: Deploy 🚀
+  run: curl -sSL "https://deploy.example.com/s" | bash -s -- "${{ secrets.DEPLOY_TOKEN }}"
+```
+
+In the [documentation](https://deploy-api.tkoessler.de) you can find examples for other CI/CD pipelines. You can also start the deployment by simply calling the HTTP API with any tool of your choice.
+
 ## Contact
 
 If a public GitHub issue or discussion is not the right choice for your concern, you can contact me directly:

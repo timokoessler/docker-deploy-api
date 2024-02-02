@@ -189,10 +189,7 @@ async function checkDockerCredentialStore(): Promise<boolean> {
         const dockerConfig = JSON.parse(dockerConfigFile);
         if (dockerConfig.credsStore || dockerConfig.credHelpers) {
             if (!isTest())
-                log(
-                    'warn',
-                    'Can not automatically get login data for private Docker registries, because a credential store is configured.',
-                );
+                log('warn', 'Can not automatically get login data for private Docker registries because a credential store is configured.');
             return false;
         }
 
