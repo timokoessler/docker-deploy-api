@@ -1,0 +1,6 @@
+{
+    "excludeNodeModules": true,
+    "excludeAfterRemap": true,
+    "reporter": ["json"],
+    "reportDir": "coverage/cli"
+}

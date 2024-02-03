@@ -7,3 +7,4 @@ coverage/
 dist
 docs
 /data
+.nyc_output
