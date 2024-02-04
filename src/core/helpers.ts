@@ -2,9 +2,12 @@ import { createHash } from 'crypto';
 
 export const isDev = () => process.env.NODE_ENV?.toLowerCase() !== 'production';
 
-export const isTest = () => process.env.NODE_ENV?.toLowerCase() === 'test';
+export const isTest = () => process.env.NODE_ENV?.toLowerCase().includes('test');
 
-export const getDataDir = () => (!isTest() ? __dirname + '/data' : __dirname + '/../../tests/data');
+export const isCLITest = () => process.env.NODE_ENV?.toLowerCase() === 'cli-test';
+
+export const getDataDir = () =>
+    !isTest() ? __dirname + '/data' : !isCLITest() ? __dirname + '/../../tests/data' : __dirname + '/../tests/data';
 
 /**
  * Generates a sha512 hash from a string

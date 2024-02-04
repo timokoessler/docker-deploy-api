@@ -7,7 +7,7 @@
         "test-app": "jest",
         "test-cli": "tsup --config tests-cli/tsup.config.ts && nyc --nycrc-path tests-cli/.nycrc.json jest -c tests-cli/jest.config.js",
         "merge-coverage": "istanbul-merge --out coverage/merged.json coverage/app/*.json coverage/cli/*.json",
-        "coverage-report": "npx nyc report --reporter clover --reporter text --reporter lcov -t coverage --report-dir coverage && rm -r .nyc_output",
+        "coverage-report": "npx nyc report --reporter clover --reporter text --reporter lcov -t coverage --report-dir coverage",
         "lint": "eslint .",
         "format": "prettier --write .",
         "build": "tsup",
@@ -54,7 +54,7 @@
         "dockerode": "^4.0.0",
         "enquirer": "^2.4.1",
         "express": "^4.18.2",
-        "interactive-cli-tester": "^0.1.0",
+        "interactive-cli-tester": "^0.2.0",
         "ora": "^7.0.1",
         "paseto": "^3.1.4"
     }
