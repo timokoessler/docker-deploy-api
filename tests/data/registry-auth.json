@@ -1,1 +1,1 @@
-{ "registry.example.com": { "auth": "ZG9ja2VyOnNlY3JldHBhc3N3b3Jk" }, "registry2.example.com": { "username": "test", "password": "test2" } }
+{"registry.example.com":{"auth":"ZG9ja2VyOnNlY3JldHBhc3N3b3Jk"},"registry2.example.com":{"username":"test","password":"test2"}}
