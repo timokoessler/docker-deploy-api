@@ -16,6 +16,7 @@ const cliTest = new CLITest(command, ['nyc', '-r', 'none', 'node', 'dist/cli.js'
     failOnStderr: false,
     process: {
         env: {
+            ...process.env,
             NODE_ENV: 'cli-test',
         },
     },
