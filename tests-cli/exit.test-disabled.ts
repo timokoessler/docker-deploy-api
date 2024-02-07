@@ -9,7 +9,7 @@ if (process.platform === 'win32') {
 const cliTest = new CLITest(command, ['nyc', '-r', 'none', 'node', 'dist/cli.js']);
 
 test('Run CLI', async () => {
-    cliTest.run();
+    await cliTest.run();
     await cliTest.waitForOutput('What do you want to do?');
     await cliTest.write(ANSI.CURSOR_DOWN);
     await cliTest.write(ANSI.CURSOR_DOWN);
