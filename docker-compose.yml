@@ -1,7 +1,7 @@
 services:
     docker-deploy-api:
         # Use :latest for the latest stable version or :main for the latest commit
-        image: timokoessler/docker-deploy-api:main
+        image: timokoessler/docker-deploy-api:latest
         restart: unless-stopped
         container_name: docker-deploy-api
         # Run as root too have permission to access the docker socket

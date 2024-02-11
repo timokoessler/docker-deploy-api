@@ -1,15 +1,12 @@
 # 🐳 Docker Deploy API
 
-An easy-to-use API for deploying Docker containers to a server.
-
 [![license](https://badgen.net/docker/pulls/timokoessler/docker-deploy-api)](https://hub.docker.com/r/timokoessler/docker-deploy-api)
 [![license](https://badgen.net/github/license/timokoessler/docker-deploy-api)](https://github.com/timokoessler/docker-deploy-api/blob/main/LICENSE)
 [![Known Vulnerabilities](https://snyk.io/test/github/timokoessler/docker-deploy-api/badge.svg)](https://snyk.io/test/github/timokoessler/docker-deploy-api)
 [![CodeFactor](https://www.codefactor.io/repository/github/timokoessler/docker-deploy-api/badge)](https://www.codefactor.io/repository/github/timokoessler/docker-deploy-api)
 [![codecov](https://codecov.io/gh/timokoessler/docker-deploy-api/graph/badge.svg?token=VYS4DJZOP3)](https://codecov.io/gh/timokoessler/docker-deploy-api)
 
-> [!WARNING]  
-> This software is still a work in progress and not released yet.
+An easy-to-use API for deploying Docker containers to a server.
 
 Let's say you build a Docker image for your application using a CI/CD pipeline and upload the image to a Docker registry.
 But how do you update the running containers on your servers with the new image? You can use Docker Deploy API to do that.
@@ -22,7 +19,7 @@ But how do you update the running containers on your servers with the new image?
 -   Works with private Docker registries 🔒
 -   No need to give your CI/CD pipeline SSH access to your servers 🛡️
 -   Works without any database
--   Support for nearly any CI/CD pipeline, e.g. GitHub Actions, GitLab CI, etc.
+-   Supports any CI/CD pipeline, e.g. GitHub Actions, GitLab CI, etc.
 
 ## Installation 🚀
 
