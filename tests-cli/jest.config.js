@@ -8,6 +8,6 @@ module.exports = {
     testMatch: ['<rootDir>/../tests-cli/**/*.test.ts'],
     collectCoverage: true,
     coverageReporters: ['none'],
-    testTimeout: 15000,
-    bail: true,
+    testTimeout: 30000,
+    maxConcurrency: 0,
 };

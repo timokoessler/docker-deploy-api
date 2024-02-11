@@ -146,6 +146,8 @@ export function setupDeployRoutes(app: express.Application) {
                         }
                     }
                     logAndSave('info', `Successfully pulled and recreated container ${containerName}`);
+
+                    // Recreate the container without pulling the image
                 } else if (token.action === DeployTokenAction.RECREATE) {
                     logAndSave('info', `Recreating container ${containerName}`);
                     if (!(await recreateContainer(container))) {
@@ -154,6 +156,8 @@ export function setupDeployRoutes(app: express.Application) {
                         return;
                     }
                     logAndSave('info', `Successfully recreated container ${containerName}`);
+
+                    // Restart the container
                 } else if (token.action === DeployTokenAction.RESTART) {
                     logAndSave('info', `Restarting container ${containerName}`);
                     if (!(await restartContainer(container))) {

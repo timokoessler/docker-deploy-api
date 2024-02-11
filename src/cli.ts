@@ -1,8 +1,8 @@
 // @ts-expect-error Wrong type definitions
 import { Select } from 'enquirer';
-import { cliGenerateToken } from './cli/generateToken';
-import { cliRevokeToken } from './cli/revokeToken';
-import { cliAddRegistryAuth } from './cli/addRegistryAuth';
+import { cliGenerateToken } from './cli/generate-token';
+import { cliRevokeToken } from './cli/revoke-token';
+import { cliAddRegistryAuth } from './cli/add-registry-auth';
 
 (async () => {
     console.log('🐳 Docker Deploy CLI by Timo Kössler');
@@ -33,8 +33,9 @@ import { cliAddRegistryAuth } from './cli/addRegistryAuth';
                 await cliRevokeToken();
                 break;
             case 'Exit':
-                process.exit(0);
+                break;
         }
+        process.exit(0);
     } catch (err) {
         if (err) {
             console.error(err.message);

@@ -71,5 +71,4 @@ export async function cliRevokeToken() {
     }
 
     spinner.succeed('Token successfully revoked. You need to restart the Docker Deploy API container for this to take effect');
-    process.exit(0);
 }

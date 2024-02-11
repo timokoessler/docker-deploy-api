@@ -130,9 +130,6 @@ export async function cliGenerateToken() {
 
         spinner.succeed('Token generated. You can now save it as a secret in your CI/CD system.');
         console.log(deployToken);
-        process.exit(0);
-
-        // Todo: Add link to example GitHub action
     } catch (err) {
         spinner.fail(`Error: ${err.message}`);
         process.exit(1);
