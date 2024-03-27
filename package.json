@@ -1,6 +1,6 @@
 {
     "name": "docker-deploy-api",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "An easy-to-use API for deploying Docker containers",
     "scripts": {
         "test": "npm run test-app && npm run test-cli && npm run merge-coverage && npm run coverage-report",

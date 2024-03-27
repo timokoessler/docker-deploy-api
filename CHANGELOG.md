@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.0.1 - 2024-03-27
+
+_Security update_
+
+-   Update Express.js to fix open redirect vulnerability CVE-2024-29041
+
 ## [1.0.0] - 2024-02-11
 
 _This is the initial release._
