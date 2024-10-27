@@ -6,7 +6,16 @@ if (process.platform === 'win32') {
     command = 'npx.cmd';
 }
 
-const cliTest = new CLITest(command, ['nyc', '-r', 'none', 'node', 'dist/cli.js']);
+const cliTest = new CLITest(
+    command,
+    ['nyc', '-r', 'none', 'node', 'dist/cli.js'],
+    {
+        process: {
+            // @ts-expect-error Wrong type definitions?
+            shell: true,
+        },
+    },
+);
 
 test('Run CLI', async () => {
     await cliTest.run();

@@ -1,9 +1,12 @@
-/* eslint-disable security/detect-non-literal-fs-filename */
-/* eslint-disable security/detect-object-injection */
 // @ts-expect-error Wrong type definitions
 import { Input, Toggle, Password } from 'enquirer';
 import { getContainerRegistryHost } from '../core/docker';
-import { access, constants as fsConstants, readFile, writeFile } from 'fs/promises';
+import {
+    access,
+    constants as fsConstants,
+    readFile,
+    writeFile,
+} from 'node:fs/promises';
 import ora from 'ora';
 import { getDataDir } from '../core/helpers';
 
@@ -22,9 +25,9 @@ export async function cliAddRegistryAuth() {
     let auths: Record<string, { auth: string }> = {};
     if (fileExists) {
         try {
-            auths = JSON.parse(await readFile(authFilePath, 'utf-8'));
-        } catch (err) {
-            spinner.fail(`Failed to read auth file: ${err.message}`);
+            auths = JSON.parse(await readFile(authFilePath, 'utf8'));
+        } catch (error) {
+            spinner.fail(`Failed to read auth file: ${error.message}`);
             process.exit(1);
         }
     }
@@ -32,7 +35,8 @@ export async function cliAddRegistryAuth() {
     spinner.succeed('Loaded auth data');
 
     const dockerHubToggle = new Toggle({
-        message: 'Do you want to add login data for Docker Hub or for another container registry?',
+        message:
+            'Do you want to add login data for Docker Hub or for another container registry?',
         enabled: 'Docker Hub',
         disabled: 'Other registry',
         initial: true,
@@ -44,7 +48,8 @@ export async function cliAddRegistryAuth() {
 
     if (!dockerHub) {
         const hostPrompt = new Input({
-            message: 'Please enter the host or url of the container registry you want to add',
+            message:
+                'Please enter the host or url of the container registry you want to add',
             validate: (input) => {
                 if (typeof input !== 'string') {
                     return false;
@@ -90,9 +95,9 @@ export async function cliAddRegistryAuth() {
     };
 
     try {
-        await writeFile(authFilePath, JSON.stringify(auths), 'utf-8');
-    } catch (err) {
-        spinner.fail(`Failed to write file: ${err.message}`);
+        await writeFile(authFilePath, JSON.stringify(auths), 'utf8');
+    } catch (error) {
+        spinner.fail(`Failed to write file: ${error.message}`);
         process.exit(1);
     }
 

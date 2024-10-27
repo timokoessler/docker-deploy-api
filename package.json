@@ -1,20 +1,20 @@
 {
     "name": "docker-deploy-api",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "An easy-to-use API for deploying Docker containers",
     "scripts": {
-        "test": "npm run test-app && npm run test-cli && npm run merge-coverage && npm run coverage-report",
-        "test-app": "jest",
-        "test-cli": "tsup --config tests-cli/tsup.config.ts && nyc --nycrc-path tests-cli/.nycrc.json jest -c tests-cli/jest.config.js",
-        "merge-coverage": "istanbul-merge --out coverage/merged.json coverage/app/*.json coverage/cli/*.json",
-        "coverage-report": "npx nyc report --reporter clover --reporter text --reporter lcov -t coverage --report-dir coverage",
+        "test": "npm run test:app && npm run test:cli && npm run coverage:merge && npm run coverage:report",
+        "test:app": "jest",
+        "test:cli": "tsup --config tests-cli/tsup.config.ts && nyc --nycrc-path tests-cli/.nycrc.json jest -c tests-cli/jest.config.mjs",
+        "coverage:merge": "istanbul-merge --out coverage/merged.json coverage/app/*.json coverage/cli/*.json",
+        "coverage:report": "npx nyc report --reporter clover --reporter text --reporter lcov -t coverage --report-dir coverage",
         "lint": "eslint .",
         "format": "prettier --write .",
         "build": "tsup",
         "cli": "node dist/cli",
         "start": "node dist/app",
         "dev": "tsup --watch --onSuccess \"node dist/app\"",
-        "cli-dev": "tsup --watch --onSuccess \"node dist/cli\""
+        "dev:cli": "tsup --watch --onSuccess \"node dist/cli\""
     },
     "repository": {
         "type": "git",
@@ -28,34 +28,34 @@
     "bugs": {
         "url": "https://github.com/timokoessler/docker-deploy-api/issues"
     },
-    "devDependencies": {
-        "@swc/jest": "^0.2.29",
-        "@types/dockerode": "^3.3.23",
-        "@types/eslint": "^8.56.0",
-        "@types/express": "^4.17.21",
-        "@types/jest": "^29.5.11",
-        "@types/node": "^20.3.2",
-        "@types/supertest": "^6.0.2",
-        "@typescript-eslint/eslint-plugin": "^7.4.0",
-        "@typescript-eslint/parser": "^7.4.0",
-        "eslint": "^8.32.0",
-        "eslint-plugin-security": "^1.7.1",
-        "istanbul-merge": "^2.0.0",
-        "jest": "^29.7.0",
-        "license-checker-rseidelsohn": "^4.2.10",
-        "nyc": "^15.1.0",
-        "prettier": "^3.0.3",
-        "supertest": "^6.3.3",
-        "tsup": "^8.0.1",
-        "typescript": "^5.1.6"
-    },
     "dependencies": {
-        "@sentry/node": "^7.89.0",
+        "@sentry/node": "^8.35.0",
         "dockerode": "^4.0.0",
         "enquirer": "^2.4.1",
-        "express": "^4.18.2",
+        "eslint-plugin-unicorn": "^56.0.0",
+        "express": "^5.0.1",
         "interactive-cli-tester": "^0.3.0",
         "ora": "^7.0.1",
         "paseto": "^3.1.4"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.13.0",
+        "@swc/jest": "^0.2.29",
+        "@types/dockerode": "^3.3.23",
+        "@types/express": "^5.0.0",
+        "@types/jest": "^29.5.11",
+        "@types/node": "^22.8.1",
+        "@types/supertest": "^6.0.2",
+        "eslint": "^9.13.0",
+        "globals": "^15.11.0",
+        "istanbul-merge": "^2.0.0",
+        "jest": "^29.7.0",
+        "license-checker-rseidelsohn": "^4.2.10",
+        "nyc": "^17.1.0",
+        "prettier": "^3.0.3",
+        "supertest": "^7.0.0",
+        "tsup": "^8.0.1",
+        "typescript": "^5.1.6",
+        "typescript-eslint": "^8.11.0"
     }
 }

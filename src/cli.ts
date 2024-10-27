@@ -4,6 +4,7 @@ import { cliGenerateToken } from './cli/generate-token';
 import { cliRevokeToken } from './cli/revoke-token';
 import { cliAddRegistryAuth } from './cli/add-registry-auth';
 
+// eslint-disable-next-line unicorn/prefer-top-level-await
 (async () => {
     console.log('🐳 Docker Deploy CLI by Timo Kössler');
 
@@ -23,22 +24,26 @@ import { cliAddRegistryAuth } from './cli/add-registry-auth';
         const action = await actionPrompt.run();
 
         switch (action) {
-            case 'Generate a Deploy Token':
+            case 'Generate a Deploy Token': {
                 await cliGenerateToken();
                 break;
-            case 'Add registry login data':
+            }
+            case 'Add registry login data': {
                 await cliAddRegistryAuth();
                 break;
-            case 'Revoke a Deploy Token':
+            }
+            case 'Revoke a Deploy Token': {
                 await cliRevokeToken();
                 break;
-            case 'Exit':
+            }
+            case 'Exit': {
                 break;
+            }
         }
         process.exit(0);
-    } catch (err) {
-        if (err) {
-            console.error(err.message);
+    } catch (error) {
+        if (error) {
+            console.error(error.message);
         }
         process.exit(1);
     }

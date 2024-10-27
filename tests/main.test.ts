@@ -1,13 +1,19 @@
-import express from 'express';
+import type { Application } from 'express';
 import request from 'supertest';
 import { initServer, sleep, timeDiff } from './test-helpers';
 import { Container } from 'dockerode';
 import { createDockerTestContainer } from './test-helpers';
-import { getContainerByID, getContainerInfoList, getDockerImage, getOwnContainerID, pullImage } from '../src/core/docker';
+import {
+    getContainerByID,
+    getContainerInfoList,
+    getDockerImage,
+    getOwnContainerID,
+    pullImage,
+} from '../src/core/docker';
 import { DeployToken, DeployTokenAction } from '../src/types';
 import { generateDeployToken } from '../src/core/tokens';
 
-let app: express.Application;
+let app: Application;
 let deployToken = '';
 let testContainer: Container;
 let imageHash: string;
@@ -24,12 +30,18 @@ beforeAll(async () => {
 /**
  * Checks if the test container is running and has the correct properties
  */
-async function checkContainer({ recreated = false, restarted = false, pulled = false }) {
+async function checkContainer({
+    recreated = false,
+    restarted = false,
+    pulled = false,
+}) {
     const containers = await getContainerInfoList();
     expect(containers).toBeTruthy();
     expect(containers!.length).toBeGreaterThan(0);
 
-    const container = containers!.find((c) => c.Names[0] === '/docker-deploy-api-test');
+    const container = containers!.find(
+        (c) => c.Names[0] === '/docker-deploy-api-test',
+    );
     expect(container).toBeTruthy();
 
     testContainer = getContainerByID(container!.Id) as Container;
@@ -43,7 +55,9 @@ async function checkContainer({ recreated = false, restarted = false, pulled = f
 
     if (recreated) {
         expect(timeDiff(containerInfo.Created, Date.now())).toBeLessThan(3000);
-        expect(timeDiff(containerInfo.Created, containerInfo.State.StartedAt)).toBeLessThan(2000);
+        expect(
+            timeDiff(containerInfo.Created, containerInfo.State.StartedAt),
+        ).toBeLessThan(2000);
     }
 
     if (pulled) {
@@ -53,8 +67,12 @@ async function checkContainer({ recreated = false, restarted = false, pulled = f
     }
 
     if (restarted) {
-        expect(timeDiff(containerInfo.State.StartedAt, Date.now())).toBeLessThan(3000);
-        expect(timeDiff(containerInfo.Created, containerInfo.State.StartedAt)).toBeGreaterThan(3000);
+        expect(
+            timeDiff(containerInfo.State.StartedAt, Date.now()),
+        ).toBeLessThan(3000);
+        expect(
+            timeDiff(containerInfo.Created, containerInfo.State.StartedAt),
+        ).toBeGreaterThan(3000);
     }
 
     imageHash = containerInfo.Image;
@@ -65,7 +83,10 @@ test('HTTP GET /', async () => {
 });
 
 test('HTTP POST /v1/deploy with empty deploy token', async () => {
-    return request(app).post('/v1/deploy').set('X-Deploy-Token', deployToken).expect(401);
+    return request(app)
+        .post('/v1/deploy')
+        .set('X-Deploy-Token', deployToken)
+        .expect(401);
 });
 
 test('Delete busybox 1.35.0 image', async () => {
@@ -75,9 +96,9 @@ test('Delete busybox 1.35.0 image', async () => {
     }
     try {
         await image.remove({ force: true });
-    } catch (e) {
-        if (!e.message.includes('No such image')) {
-            throw e;
+    } catch (error) {
+        if (!error.message.includes('No such image')) {
+            throw error;
         }
     }
 });
@@ -89,9 +110,9 @@ test('Delete busybox latest image', async () => {
     }
     try {
         await image.remove({ force: true });
-    } catch (e) {
-        if (!e.message.includes('No such image')) {
-            throw e;
+    } catch (error) {
+        if (!error.message.includes('No such image')) {
+            throw error;
         }
     }
 });
@@ -106,7 +127,10 @@ test('Pull old version of busybox', async () => {
 });
 
 test('Create test container', async () => {
-    testContainer = await createDockerTestContainer('docker-deploy-api-test', 'busybox:latest');
+    testContainer = await createDockerTestContainer(
+        'docker-deploy-api-test',
+        'busybox:latest',
+    );
     await sleep(100);
     await checkContainer({});
 });
@@ -123,7 +147,11 @@ test('Generate deploy token (pull & recreate)', async () => {
 });
 
 test('HTTP POST /v1/deploy (pull & recreate)', async () => {
-    return request(app).post('/v1/deploy').set('X-Deploy-Token', deployToken).timeout(30000).expect(200);
+    return request(app)
+        .post('/v1/deploy')
+        .set('X-Deploy-Token', deployToken)
+        .timeout(30_000)
+        .expect(200);
 });
 
 test('Check recreated container', async () => {
@@ -142,7 +170,11 @@ test('Generate deploy token (restart)', async () => {
 });
 
 test('HTTP POST /v1/deploy (restart)', async () => {
-    return request(app).post('/v1/deploy').set('X-Deploy-Token', deployToken).timeout(30000).expect(200);
+    return request(app)
+        .post('/v1/deploy')
+        .set('X-Deploy-Token', deployToken)
+        .timeout(30_000)
+        .expect(200);
 });
 
 test('Check restarted container', async () => {
@@ -161,7 +193,11 @@ test('Generate deploy token (recreate)', async () => {
 });
 
 test('HTTP POST /v1/deploy (recreate)', async () => {
-    return request(app).post('/v1/deploy').set('X-Deploy-Token', deployToken).timeout(30000).expect(200);
+    return request(app)
+        .post('/v1/deploy')
+        .set('X-Deploy-Token', deployToken)
+        .timeout(30_000)
+        .expect(200);
 });
 
 test('Check recreated container', async () => {

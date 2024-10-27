@@ -1,10 +1,14 @@
-/* eslint-disable security/detect-non-literal-fs-filename */
 // @ts-expect-error Wrong type definitions
 import { Input } from 'enquirer';
 import ora from 'ora';
 import { initPaseto, setupPaseto, verifyDeployToken } from '../core/tokens';
 import { DeployToken } from '../types';
-import { access, constants as fsConstants, readFile, writeFile } from 'fs/promises';
+import {
+    access,
+    constants as fsConstants,
+    readFile,
+    writeFile,
+} from 'node:fs/promises';
 import { getDataDir, sha512 } from '../core/helpers';
 
 export async function cliRevokeToken() {
@@ -48,8 +52,10 @@ export async function cliRevokeToken() {
                 );
                 process.exit(1);
             }
-        } catch (err) {
-            spinner.fail(`Failed to read revoked tokens file: ${err.message}`);
+        } catch (error) {
+            spinner.fail(
+                `Failed to read revoked tokens file: ${error.message}`,
+            );
             process.exit(1);
         }
     } else {
@@ -65,10 +71,12 @@ export async function cliRevokeToken() {
     revokedTokens.push(tokenHash);
     try {
         await writeFile(revokedFile, JSON.stringify(revokedTokens), 'ascii');
-    } catch (err) {
-        spinner.fail(`Failed to write revoked tokens file: ${err.message}`);
+    } catch (error) {
+        spinner.fail(`Failed to write revoked tokens file: ${error.message}`);
         process.exit(1);
     }
 
-    spinner.succeed('Token successfully revoked. You need to restart the Docker Deploy API container for this to take effect');
+    spinner.succeed(
+        'Token successfully revoked. You need to restart the Docker Deploy API container for this to take effect',
+    );
 }

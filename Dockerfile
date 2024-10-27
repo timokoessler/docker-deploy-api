@@ -1,4 +1,4 @@
-FROM node:20-slim
+FROM node:22-slim
 
 ENV NODE_ENV production
 LABEL org.opencontainers.image.authors="Timo Kössler <info@timokoessler.de>"

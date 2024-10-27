@@ -1,13 +1,22 @@
-import { createHash } from 'crypto';
+/* eslint-disable unicorn/prefer-module */
+import { createHash } from 'node:crypto';
 
 export const isDev = () => process.env.NODE_ENV?.toLowerCase() !== 'production';
 
-export const isTest = () => process.env.NODE_ENV?.toLowerCase().includes('test');
+export const isTest = () =>
+    process.env.NODE_ENV?.toLowerCase().includes('test');
 
-export const isCLITest = () => process.env.NODE_ENV?.toLowerCase() === 'cli-test';
+export const isCLITest = () =>
+    process.env.NODE_ENV?.toLowerCase() === 'cli-test';
 
-export const getDataDir = () =>
-    !isTest() ? __dirname + '/data' : !isCLITest() ? __dirname + '/../../tests/data' : __dirname + '/../tests/data';
+export function getDataDir() {
+    if (isTest()) {
+        return isCLITest()
+            ? __dirname + '/../tests/data'
+            : __dirname + '/../../tests/data';
+    }
+    return __dirname + '/data';
+}
 
 /**
  * Generates a sha512 hash from a string

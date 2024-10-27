@@ -1,5 +1,9 @@
 import { initServer } from './test-helpers';
-import { getContainerRegistryAuth, getContainerRegistryHost, pullImage } from '../src/core/docker';
+import {
+    getContainerRegistryAuth,
+    getContainerRegistryHost,
+    pullImage,
+} from '../src/core/docker';
 
 process.env.NODE_ENV = 'TEST';
 process.env.PORT = '3000';
@@ -15,19 +19,25 @@ test('Get container registry host', () => {
 });
 
 test('Get container registry auth for registry.example.com', async () => {
-    const auth = await getContainerRegistryAuth('registry.example.com/test/test:latest');
+    const auth = await getContainerRegistryAuth(
+        'registry.example.com/test/test:latest',
+    );
 
     expect(auth.username).toEqual('docker');
     expect(auth.password).toEqual('secretpassword');
 });
 
 test('Get non-existing container registry auth', async () => {
-    const auth = await getContainerRegistryAuth('registry.example.com:5000/test/test:latest');
+    const auth = await getContainerRegistryAuth(
+        'registry.example.com:5000/test/test:latest',
+    );
     expect(auth).toBeUndefined();
 });
 
 test('Get container registry auth for registry2.example.com', async () => {
-    const auth = await getContainerRegistryAuth('registry2.example.com/test/test:latest');
+    const auth = await getContainerRegistryAuth(
+        'registry2.example.com/test/test:latest',
+    );
 
     expect(auth.username).toEqual('test');
     expect(auth.password).toEqual('test2');
@@ -38,7 +48,7 @@ test('Pull image from private registry without auth', async () => {
     try {
         await pullImage('registry.gitlab.com/timokoessler/busybox:latest');
         expect(false).toBeTruthy();
-    } catch (error) {
+    } catch {
         // Expected error
     }
     process.env.EXPECT_ERROR = '';

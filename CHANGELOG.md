@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.0.2 - 2024-10-27
+
+-   Update all dependencies fixing security vulnerabilities
+-   Bump Node.js to v22
+-   Improve linting and code quality
+
 ## 1.0.1 - 2024-03-27
 
 _Security update_

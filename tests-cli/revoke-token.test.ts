@@ -1,8 +1,13 @@
-/* eslint-disable security/detect-non-literal-fs-filename */
 import { ANSI, CLITest } from 'interactive-cli-tester';
-import { generateDeployToken, initPaseto, setupPaseto, verifyDeployToken, isTokenRevoked } from '../src/core/tokens';
+import {
+    generateDeployToken,
+    initPaseto,
+    setupPaseto,
+    verifyDeployToken,
+    isTokenRevoked,
+} from '../src/core/tokens';
 import { DeployToken, DeployTokenAction } from '../src/types';
-import { readFile, writeFile } from 'fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { getDataDir, sha512 } from '../src/core/helpers';
 
 let command = 'npx';
@@ -12,15 +17,21 @@ if (process.platform === 'win32') {
 
 process.env.NODE_ENV = 'TEST';
 
-const cliTest = new CLITest(command, ['nyc', '-r', 'none', 'node', 'dist/cli.js'], {
-    failOnStderr: false,
-    process: {
-        env: {
-            ...process.env,
-            NODE_ENV: 'cli-test',
+const cliTest = new CLITest(
+    command,
+    ['nyc', '-r', 'none', 'node', 'dist/cli.js'],
+    {
+        failOnStderr: false,
+        process: {
+            env: {
+                ...process.env,
+                NODE_ENV: 'cli-test',
+            },
+            // @ts-expect-error Wrong type definitions?
+            shell: true,
         },
     },
-});
+);
 
 let token = '';
 const revokedTokensFilePath = `${getDataDir()}/revoked-tokens.json`;
@@ -47,7 +58,9 @@ test('Start CLI and select "Revoke a Deploy Token"', async () => {
 });
 
 test('Enter the token to revoke', async () => {
-    await cliTest.waitForOutput('Please paste or enter the token you want to revoke');
+    await cliTest.waitForOutput(
+        'Please paste or enter the token you want to revoke',
+    );
     await cliTest.write(token);
     await cliTest.write(ANSI.CR);
 });
@@ -58,7 +71,9 @@ test('Sucessfully revoke the token', async () => {
 });
 
 test('Check file for revoked token hash', async () => {
-    const revokedTokens = JSON.parse(await readFile(revokedTokensFilePath, 'ascii'));
+    const revokedTokens = JSON.parse(
+        await readFile(revokedTokensFilePath, 'ascii'),
+    );
     expect(Array.isArray(revokedTokens)).toBeTruthy();
     expect(revokedTokens).toContain(sha512(token));
 });
@@ -69,11 +84,15 @@ test('Run again and try to revoke the same token', async () => {
     await cliTest.write(ANSI.CURSOR_DOWN);
     await cliTest.write(ANSI.CURSOR_DOWN);
     await cliTest.write(ANSI.CR);
-    await cliTest.waitForOutput('Please paste or enter the token you want to revoke');
+    await cliTest.waitForOutput(
+        'Please paste or enter the token you want to revoke',
+    );
     await cliTest.write(token);
     await cliTest.write(ANSI.CR);
     expect(await cliTest.waitForExit()).toBe(1);
-    expect(cliTest.getOutput()).toContain('The token you entered is already revoked');
+    expect(cliTest.getOutput()).toContain(
+        'The token you entered is already revoked',
+    );
 });
 
 test('Run again and try to revoke an expired token', async () => {
@@ -90,17 +109,27 @@ test('Run again and try to revoke an expired token', async () => {
     await cliTest.write(ANSI.CURSOR_DOWN);
     await cliTest.write(ANSI.CURSOR_DOWN);
     await cliTest.write(ANSI.CR);
-    await cliTest.waitForOutput('Please paste or enter the token you want to revoke');
+    await cliTest.waitForOutput(
+        'Please paste or enter the token you want to revoke',
+    );
     await cliTest.write(expiredToken);
     await cliTest.write(ANSI.CR);
     expect(await cliTest.waitForExit()).toBe(1);
-    expect(cliTest.getOutput()).toContain('The token you entered is invalid or already expired');
+    expect(cliTest.getOutput()).toContain(
+        'The token you entered is invalid or already expired',
+    );
 });
 
 // Undo changes to the file system
 afterAll(async () => {
-    let revokedTokens = JSON.parse(await readFile(revokedTokensFilePath, 'ascii')) as string[];
+    let revokedTokens = JSON.parse(
+        await readFile(revokedTokensFilePath, 'ascii'),
+    ) as string[];
     expect(Array.isArray(revokedTokens)).toBeTruthy();
     revokedTokens = revokedTokens.filter((t: string) => t !== sha512(token));
-    await writeFile(revokedTokensFilePath, JSON.stringify(revokedTokens), 'ascii');
+    await writeFile(
+        revokedTokensFilePath,
+        JSON.stringify(revokedTokens),
+        'ascii',
+    );
 });

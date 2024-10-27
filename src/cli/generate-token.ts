@@ -1,6 +1,10 @@
 // @ts-expect-error Wrong type definitions
 import { MultiSelect, Toggle, Input, Select } from 'enquirer';
-import { getContainerInfoList, getOwnContainerID, initDocker } from '../core/docker';
+import {
+    getContainerInfoList,
+    getOwnContainerID,
+    initDocker,
+} from '../core/docker';
 import ora from 'ora';
 import { DeployToken, DeployTokenAction } from '../types';
 import { generateDeployToken, initPaseto, setupPaseto } from '../core/tokens';
@@ -24,7 +28,9 @@ export async function cliGenerateToken() {
         const ownContainerID = await getOwnContainerID();
 
         if (ownContainerID) {
-            containers = containers.filter((container) => container.Id !== ownContainerID);
+            containers = containers.filter(
+                (container) => container.Id !== ownContainerID,
+            );
 
             if (containers.length === 0) {
                 spinner.fail('No containers found (excluding self)');
@@ -54,7 +60,9 @@ export async function cliGenerateToken() {
             process.exit(1);
         }
 
-        spinner.succeed(`Selected ${selectedContainerNames.length} container${selectedContainerNames.length === 1 ? '' : 's'}`);
+        spinner.succeed(
+            `Selected ${selectedContainerNames.length} container${selectedContainerNames.length === 1 ? '' : 's'}`,
+        );
 
         const tokenConfig: DeployToken = {
             containerNames: selectedContainerNames,
@@ -77,7 +85,11 @@ export async function cliGenerateToken() {
                 message: 'How long should the deploy token be valid?',
                 initial: '1y',
                 validate: (input) => {
-                    if (/^(\d+|\d+\.\d+) ?(seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|weeks?|w|years?|yrs?|y)$/i.test(input)) {
+                    if (
+                        /^(\d+|\d+\.\d+) ?(seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|weeks?|w|years?|yrs?|y)$/i.test(
+                            input,
+                        )
+                    ) {
                         return true;
                     }
                     return 'Please enter a valid duration (e.g. 24h, 4w, 5y)';
@@ -89,29 +101,38 @@ export async function cliGenerateToken() {
         const actionPrompt = new Select({
             name: 'value',
             message: 'What action should the token perform?',
-            choices: [{ name: 'Pull and recreate' }, { name: 'Recreate only' }, { name: 'Restart container' }],
+            choices: [
+                { name: 'Pull and recreate' },
+                { name: 'Recreate only' },
+                { name: 'Restart container' },
+            ],
             initial: 0,
         });
 
         const selectedActionName = (await actionPrompt.run()) as string;
         switch (selectedActionName) {
-            case 'Pull and recreate':
+            case 'Pull and recreate': {
                 tokenConfig.action = DeployTokenAction.PULL_AND_RECREATE;
                 break;
-            case 'Recreate only':
+            }
+            case 'Recreate only': {
                 tokenConfig.action = DeployTokenAction.RECREATE;
                 break;
-            case 'Restart container':
+            }
+            case 'Restart container': {
                 tokenConfig.action = DeployTokenAction.RESTART;
                 break;
-            default:
+            }
+            default: {
                 spinner.fail('Invalid action selected');
                 process.exit(1);
+            }
         }
 
         if (tokenConfig.action === DeployTokenAction.PULL_AND_RECREATE) {
             const cleanupPrompt = new Toggle({
-                message: 'Should the old image be removed after pulling the new one?',
+                message:
+                    'Should the old image be removed after pulling the new one?',
                 enabled: 'Yes',
                 disabled: 'No',
                 initial: true,
@@ -126,12 +147,17 @@ export async function cliGenerateToken() {
         await setupPaseto();
         await initPaseto(true);
 
-        const deployToken = await generateDeployToken(tokenConfig, tokenExpiration);
+        const deployToken = await generateDeployToken(
+            tokenConfig,
+            tokenExpiration,
+        );
 
-        spinner.succeed('Token generated. You can now save it as a secret in your CI/CD system.');
+        spinner.succeed(
+            'Token generated. You can now save it as a secret in your CI/CD system.',
+        );
         console.log(deployToken);
-    } catch (err) {
-        spinner.fail(`Error: ${err.message}`);
+    } catch (error) {
+        spinner.fail(`Error: ${error.message}`);
         process.exit(1);
     }
 }

@@ -1,7 +1,10 @@
 import chalk from 'chalk';
 import { isDev, isTest } from './helpers';
 
-export function log(level: 'error' | 'warn' | 'info' | 'debug', content: string | object) {
+export function log(
+    level: 'error' | 'warn' | 'info' | 'debug',
+    content: string | object,
+) {
     /* istanbul ignore else  */
     if (isTest()) {
         if (level === 'error' && process.env.EXPECT_ERROR !== 'true') {
@@ -14,13 +17,13 @@ export function log(level: 'error' | 'warn' | 'info' | 'debug', content: string 
         } else {
             try {
                 txt = JSON.stringify(content);
-            } catch (error) {
+            } catch {
                 txt = content.toString();
             }
         }
 
         // Remove newline characters to protect against crlf injection
-        txt = txt.replace(/(\r\n|\n|\r)/gm, '');
+        txt = txt.replaceAll(/(\r\n|\n|\r)/gm, '');
 
         const dateStr = new Date().toISOString();
 

@@ -12,19 +12,28 @@ process.env.NODE_ENV = 'TEST';
 
 let testContainer: Container;
 
-const cliTest = new CLITest(command, ['nyc', '-r', 'none', 'node', 'dist/cli.js'], {
-    failOnStderr: false,
-    process: {
-        env: {
-            ...process.env,
-            NODE_ENV: 'cli-test',
+const cliTest = new CLITest(
+    command,
+    ['nyc', '-r', 'none', 'node', 'dist/cli.js'],
+    {
+        failOnStderr: false,
+        process: {
+            env: {
+                ...process.env,
+                NODE_ENV: 'cli-test',
+            },
+            // @ts-expect-error Wrong type definitions?
+            shell: true,
         },
     },
-});
+);
 
 beforeAll(async () => {
     await initDocker(true);
-    testContainer = await createDockerTestContainer('docker-deploy-api-test-cli', 'busybox:latest');
+    testContainer = await createDockerTestContainer(
+        'docker-deploy-api-test-cli',
+        'busybox:latest',
+    );
     await sleep(100);
 });
 
@@ -35,7 +44,9 @@ test('Start CLI and select "Generate a Deploy Token"', async () => {
 });
 
 test('Wait for container selection', async () => {
-    await cliTest.waitForOutput('Select one or multiple containers for which you want to generate a deploy token');
+    await cliTest.waitForOutput(
+        'Select one or multiple containers for which you want to generate a deploy token',
+    );
     // Select the first container
     await cliTest.write(ANSI.SPACE);
     await cliTest.write(ANSI.CR);
@@ -52,7 +63,9 @@ test('Set token expiration', async () => {
 test('Set token action', async () => {
     await cliTest.waitForOutput('What action should the token perform?');
     await cliTest.write(ANSI.CR);
-    await cliTest.waitForOutput('Should the old image be removed after pulling the new one?');
+    await cliTest.waitForOutput(
+        'Should the old image be removed after pulling the new one?',
+    );
     await cliTest.write(ANSI.CR);
 });
 

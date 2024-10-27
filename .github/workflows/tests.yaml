@@ -13,17 +13,17 @@ jobs:
             GITLAB_AUTH_TOKEN: ${{ secrets.GITLAB_AUTH_TOKEN }}
         steps:
             - name: Checkout repository ⬇️
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
             - name: Use Node.js 20
-              uses: actions/setup-node@v3
+              uses: actions/setup-node@v4
               with:
-                  node-version: 20.x
+                  node-version: 22.x
                   cache: 'npm'
             - name: Install dependencies 📦
               run: npm ci
             - name: Run tests 🧪
               run: npm test
             - name: Upload coverage report to Codecov 📊
-              uses: codecov/codecov-action@v3
+              uses: codecov/codecov-action@v4
               env:
                   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

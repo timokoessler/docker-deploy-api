@@ -1,6 +1,6 @@
-import express from 'express';
+import type { Request, Response, NextFunction } from 'express';
 
-export function handleCORS(req: express.Request, res: express.Response, next: express.NextFunction) {
+export function handleCORS(req: Request, res: Response, next: NextFunction) {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, HEAD');
     res.header('Access-Control-Allow-Headers', 'x-deploy-token');

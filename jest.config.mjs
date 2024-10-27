@@ -8,7 +8,7 @@ export default {
     collectCoverage: true,
     collectCoverageFrom: ['src/**/*.ts'],
     testMatch: ['<rootDir>/tests/**/*.test.ts'],
-    testTimeout: 40000,
+    testTimeout: 40_000,
     coverageReporters: ['json'],
     coverageDirectory: 'coverage/app',
     bail: true,

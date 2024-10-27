@@ -1,5 +1,3 @@
-/* eslint-disable security/detect-object-injection */
-
 import { log } from './logger';
 
 const config = {
@@ -14,7 +12,7 @@ const config = {
 };
 
 function toEnvName(key: string) {
-    return key.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase();
+    return key.replaceAll(/([a-z])([A-Z])/g, '$1_$2').toUpperCase();
 }
 
 export function initConfig() {
@@ -22,22 +20,34 @@ export function initConfig() {
         const envName = toEnvName(key);
         if (process.env[envName]) {
             switch (typeof config[key]) {
-                case 'number':
+                case 'number': {
                     config[key] = Number(process.env[envName]);
-                    if (isNaN(config[key])) {
-                        log('error', `Environment variable ${envName} is not a number`);
+                    if (Number.isNaN(config[key])) {
+                        log(
+                            'error',
+                            `Environment variable ${envName} is not a number`,
+                        );
                         process.exit(1);
                     }
                     break;
-                case 'boolean':
-                    if (process.env[envName] !== 'true' && process.env[envName] !== 'false') {
-                        log('error', `Environment variable ${key} is not a boolean`);
+                }
+                case 'boolean': {
+                    if (
+                        process.env[envName] !== 'true' &&
+                        process.env[envName] !== 'false'
+                    ) {
+                        log(
+                            'error',
+                            `Environment variable ${key} is not a boolean`,
+                        );
                         process.exit(1);
                     }
                     config[key] = process.env[envName] === 'true';
                     break;
-                default:
+                }
+                default: {
                     config[key] = process.env[envName];
+                }
             }
         }
     }

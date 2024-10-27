@@ -10,6 +10,7 @@ import { initDocker } from './core/docker';
 import { handleCORS } from './routes/cors';
 
 // Check if file is being run directly or required as a module
+// eslint-disable-next-line unicorn/prefer-module
 if (require.main === module) {
     if (cluster.isPrimary) {
         const config = initConfig();
@@ -20,7 +21,10 @@ if (require.main === module) {
         }
 
         if (process.env['URL'] === undefined) {
-            log('warn', 'Environment variable URL is not set. This is required for the bash script to work.');
+            log(
+                'warn',
+                'Environment variable URL is not set. This is required for the bash script to work.',
+            );
         }
 
         for (let i = 0; i < config.workers; i++) {
@@ -40,7 +44,9 @@ if (require.main === module) {
     }
 }
 
-export function initApp(config: ReturnType<typeof initConfig>): express.Application {
+export function initApp(
+    config: ReturnType<typeof initConfig>,
+): express.Application {
     const app: express.Application = express();
     app.disable('x-powered-by');
 
@@ -52,30 +58,16 @@ export function initApp(config: ReturnType<typeof initConfig>): express.Applicat
         log('info', 'Enabling Sentry error reporting');
         Sentry.init({
             dsn: config.sentryDsn,
-            tracesSampleRate: 0.2,
             environment: isDev() ? 'development' : 'production',
-            integrations: [
-                // enable HTTP calls tracing
-                new Sentry.Integrations.Http({ tracing: true }),
-                // enable Express.js middleware tracing
-                new Sentry.Integrations.Express({ app }),
-                // Automatically instrument Node.js libraries and frameworks
-                ...Sentry.autoDiscoverNodePerformanceMonitoringIntegrations(),
-            ],
         });
-        app.use(Sentry.Handlers.requestHandler());
-        app.use(Sentry.Handlers.tracingHandler());
     }
 
+    // @ts-expect-error Wrong type definitions
     app.use(handleCORS);
 
     initPaseto();
     initDocker();
     setupRoutes(app);
-
-    if (config.sentryDsn.length > 0) {
-        app.use(Sentry.Handlers.errorHandler());
-    }
 
     app.use((_req, res) => {
         res.sendStatus(404);

@@ -1,5 +1,5 @@
 /** @type {import('jest').Config} */
-module.exports = {
+export default {
     testEnvironment: 'node',
     transform: {
         '^.+\\.(t|j)sx?$': '@swc/jest',
@@ -8,6 +8,6 @@ module.exports = {
     testMatch: ['<rootDir>/../tests-cli/**/*.test.ts'],
     collectCoverage: true,
     coverageReporters: ['none'],
-    testTimeout: 30000,
+    testTimeout: 30_000,
     maxConcurrency: 0,
 };
