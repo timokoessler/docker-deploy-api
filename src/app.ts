@@ -1,4 +1,3 @@
-// import '@aikidosec/firewall'; // Should this be included?
 import cluster from 'node:cluster';
 import { isDev } from './core/helpers';
 import { log } from './core/logger';
@@ -7,13 +6,13 @@ import { setupRoutes } from './routes';
 import { initConfig } from './core/config';
 import { initPaseto, setupPaseto } from './core/tokens';
 import { initDocker } from './core/docker';
-import { handleCORS } from './routes/cors';
 import { Hono } from 'hono';
 import { serve } from '@hono/node-server';
 import { HTTPException } from 'hono/http-exception';
 import { trimTrailingSlash } from 'hono/trailing-slash';
 import { bodyLimit } from 'hono/body-limit';
 import { compress } from 'hono/compress';
+import { cors } from 'hono/cors';
 
 // Check if file is being run directly or required as a module
 // eslint-disable-next-line unicorn/prefer-module
@@ -61,11 +60,6 @@ if (require.main === module) {
 export function initApp(config: ReturnType<typeof initConfig>): Hono {
     const app: Hono = new Hono();
 
-    // if (config.behindProxy) {
-    //     app.set('trust proxy', ['loopback', 'linklocal', 'uniquelocal']);
-    // }
-    // TODO: Is this needed?
-
     if (config.sentryDsn.length > 0) {
         log('info', 'Enabling Sentry error reporting');
         Sentry.init({
@@ -74,8 +68,14 @@ export function initApp(config: ReturnType<typeof initConfig>): Hono {
         });
     }
 
-    app.use(handleCORS);
-
+    app.use(
+        cors({
+            origin: '*',
+            allowMethods: ['GET', 'POST', 'OPTIONS', 'HEAD'],
+            allowHeaders: ['x-deploy-token'],
+            maxAge: 86_400,
+        }),
+    );
     app.use(trimTrailingSlash());
     app.use(
         bodyLimit({

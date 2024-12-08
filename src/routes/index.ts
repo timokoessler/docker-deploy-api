@@ -12,22 +12,22 @@ export function setupRoutes(app: Hono) {
             c.status(204);
             return;
         }
-        c.body(indexPage);
+        return c.body(indexPage);
     });
 
     app.get('/robots.txt', async (c) => {
         c.header('Content-Type', 'text/plain');
-        c.body('User-agent: *\nDisallow: /');
+        return c.body('User-agent: *\nDisallow: /');
     });
 
     app.get('/logo.svg', async (c) => {
         c.header('Content-Type', 'mage/svg+xml');
-        c.body(logo);
+        return c.body(logo);
     });
 
     app.get('/s', async (c) => {
         c.header('Content-Type', 'text/plain');
-        c.body(
+        return c.body(
             requestSh
                 .replace('{{URL}}', getConfig().url)
                 .replace('{{TIMEOUT}}', getConfig().scriptTimeout.toString()),
@@ -36,7 +36,7 @@ export function setupRoutes(app: Hono) {
 
     app.get('/pwsh', async (c) => {
         c.header('Content-Type', 'text/plain');
-        c.body(
+        return c.body(
             requestPs1
                 .replace('{{URL}}', getConfig().url)
                 .replace('{{TIMEOUT}}', getConfig().scriptTimeout.toString()),

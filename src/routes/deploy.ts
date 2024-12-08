@@ -21,8 +21,9 @@ export function setupDeployRoutes(app: Hono) {
             // Check if the request has the correct deploy token
             const deployToken = c.req.header('X-Deploy-Token');
             if (typeof deployToken !== 'string' || deployToken.length === 0) {
-                c.text('Error: Missing X-Deploy-Token header', { status: 401 });
-                return;
+                return c.text('Error: Missing X-Deploy-Token header', {
+                    status: 401,
+                });
             }
             const token = (await verifyDeployToken(deployToken)) as DeployToken;
             if (!token) {
@@ -30,8 +31,8 @@ export function setupDeployRoutes(app: Hono) {
                     'warn',
                     `Received request with invalid deploy token from ${getIPAddressFromHono(c)}`,
                 );
-                c.text('Error: Invalid deploy token', { status: 401 });
-                return;
+
+                return c.text('Error: Invalid deploy token', { status: 401 });
             }
 
             if (isTokenRevoked(deployToken)) {
@@ -39,8 +40,10 @@ export function setupDeployRoutes(app: Hono) {
                     'warn',
                     `Received request with revoked deploy token from ${getIPAddressFromHono(c)}`,
                 );
-                c.text('Error: Deploy token has been revoked', { status: 401 });
-                return;
+
+                return c.text('Error: Deploy token has been revoked', {
+                    status: 401,
+                });
             }
 
             // Validate the token contents
@@ -48,27 +51,26 @@ export function setupDeployRoutes(app: Hono) {
                 Array.isArray(token.containerNames) &&
                 token.containerNames.length === 0
             ) {
-                c.text('Error: No container names specified', { status: 400 });
-                return;
+                return c.text('Error: No container names specified', {
+                    status: 400,
+                });
             }
             if (
                 typeof token.action !== 'number' ||
                 token.action < 0 ||
                 token.action > 2
             ) {
-                c.text('Error: No or invalid action specified', {
+                return c.text('Error: No or invalid action specified', {
                     status: 400,
                 });
-                return;
             }
 
             // Get the container info for all containers
             const containerInfos = await getContainerInfoList();
             if (!containerInfos) {
-                c.text('Error: Failed to list containers', {
+                return c.text('Error: Failed to list containers', {
                     status: 500,
                 });
-                return;
             }
 
             // Get the container objects for all containers that should be deployed and put them in a list
@@ -81,24 +83,25 @@ export function setupDeployRoutes(app: Hono) {
                     (c) => c.Names[0] === `/${containerName}`,
                 );
                 if (!containerInfo) {
-                    c.text(
+                    log(
+                        'warn',
+                        `Can not find container info for ${containerName}`,
+                    );
+                    return c.text(
                         `Error: Can not find container info for ${containerName}`,
                         {
                             status: 404,
                         },
                     );
-                    log(
-                        'warn',
-                        `Can not find container info for ${containerName}`,
-                    );
-                    return;
                 }
                 const container = await getContainerByID(containerInfo.Id);
                 if (!container) {
-                    c.text(`Error: Container ${containerName} not found`, {
-                        status: 404,
-                    });
-                    return;
+                    return c.text(
+                        `Error: Container ${containerName} not found`,
+                        {
+                            status: 404,
+                        },
+                    );
                 }
                 deployContainerList.push({ container, info: containerInfo });
             }
@@ -149,10 +152,9 @@ export function setupDeployRoutes(app: Hono) {
                             'error',
                             `Failed to pull image for container ${containerName}: ${error.message}`,
                         );
-                        c.text(logOutput, {
+                        return c.text(logOutput, {
                             status: 500,
                         });
-                        return;
                     }
 
                     logAndSave('info', `Recreating container ${containerName}`);
@@ -161,10 +163,9 @@ export function setupDeployRoutes(app: Hono) {
                             'error',
                             `Failed to recreate container ${containerName}`,
                         );
-                        c.text(logOutput, {
+                        return c.text(logOutput, {
                             status: 500,
                         });
-                        return;
                     }
 
                     // Remove the old image
@@ -251,7 +252,7 @@ export function setupDeployRoutes(app: Hono) {
                             'error',
                             `Failed to restart container ${containerName}`,
                         );
-                        c.text(logOutput, {
+                        return c.text(logOutput, {
                             status: 500,
                         });
                         return;
@@ -263,17 +264,17 @@ export function setupDeployRoutes(app: Hono) {
                 }
             }
             logAndSave('info', 'Successfully deployed all containers');
-            c.text(logOutput, {
+            return c.text(logOutput, {
                 status: 200,
             });
         } catch (error) {
             log('error', `Failed to deploy containers: ${error.message}`);
-            // if (!res.headersSent) {
-            // TODO: What is the hono equivalent of this?
-            c.text('Internal server error. View logs for more information.', {
-                status: 500,
-            });
-            // }
+            return c.text(
+                'Internal server error. View logs for more information.',
+                {
+                    status: 500,
+                },
+            );
         }
     });
 }
