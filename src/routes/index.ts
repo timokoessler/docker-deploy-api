@@ -9,25 +9,23 @@ import type { Hono } from 'hono';
 export function setupRoutes(app: Hono) {
     app.get('/', async (c) => {
         if (getConfig().disableIndexPage) {
-            c.status(204);
-            return;
+            return c.body(undefined, 204);
         }
-        return c.body(indexPage);
+        return c.html(indexPage);
     });
 
     app.get('/robots.txt', async (c) => {
-        c.header('Content-Type', 'text/plain');
-        return c.body('User-agent: *\nDisallow: /');
+        return c.text('User-agent: *\nDisallow: /');
     });
 
     app.get('/logo.svg', async (c) => {
-        c.header('Content-Type', 'mage/svg+xml');
-        return c.body(logo);
+        return c.body(logo, 200, {
+            'Content-Type': 'image/svg+xml; charset=UTF-8',
+        });
     });
 
     app.get('/s', async (c) => {
-        c.header('Content-Type', 'text/plain');
-        return c.body(
+        return c.text(
             requestSh
                 .replace('{{URL}}', getConfig().url)
                 .replace('{{TIMEOUT}}', getConfig().scriptTimeout.toString()),
@@ -35,8 +33,7 @@ export function setupRoutes(app: Hono) {
     });
 
     app.get('/pwsh', async (c) => {
-        c.header('Content-Type', 'text/plain');
-        return c.body(
+        return c.text(
             requestPs1
                 .replace('{{URL}}', getConfig().url)
                 .replace('{{TIMEOUT}}', getConfig().scriptTimeout.toString()),

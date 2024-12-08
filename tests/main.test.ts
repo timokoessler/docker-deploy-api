@@ -79,7 +79,7 @@ async function checkContainer({
 
 test('HTTP GET /', async () => {
     const response = await app.request('/', {
-        method: 'GEt',
+        method: 'GET',
     });
     expect(response.status).toEqual(200);
 });

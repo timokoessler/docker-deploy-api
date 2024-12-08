@@ -12,7 +12,6 @@ import { HTTPException } from 'hono/http-exception';
 import { trimTrailingSlash } from 'hono/trailing-slash';
 import { bodyLimit } from 'hono/body-limit';
 import { compress } from 'hono/compress';
-import { cors } from 'hono/cors';
 
 // Check if file is being run directly or required as a module
 // eslint-disable-next-line unicorn/prefer-module
@@ -68,14 +67,13 @@ export function initApp(config: ReturnType<typeof initConfig>): Hono {
         });
     }
 
-    app.use(
-        cors({
-            origin: '*',
-            allowMethods: ['GET', 'POST', 'OPTIONS', 'HEAD'],
-            allowHeaders: ['x-deploy-token'],
-            maxAge: 86_400,
-        }),
-    );
+    app.use(async (c, next) => {
+        c.header('Access-Control-Allow-Origin', '*');
+        c.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, HEAD');
+        c.header('Access-Control-Allow-Headers', 'x-deploy-token');
+        c.header('Access-Control-Max-Age', '86400');
+        return await next();
+    });
     app.use(trimTrailingSlash());
     app.use(
         bodyLimit({

@@ -24,11 +24,11 @@ test('HTTP GET /test', async () => {
         method: 'GET',
     });
     expect(response.status).toEqual(204);
-    expect(response.headers['access-control-allow-origin']).toEqual('*');
-    expect(response.headers['access-control-allow-methods']).toEqual(
+    expect(response.headers.get('access-control-allow-origin')).toEqual('*');
+    expect(response.headers.get('access-control-allow-methods')).toEqual(
         'GET, POST, OPTIONS, HEAD',
     );
-    expect(response.headers['access-control-allow-headers']).toEqual(
+    expect(response.headers.get('access-control-allow-headers')).toEqual(
         'x-deploy-token',
     );
 });
@@ -38,10 +38,10 @@ test('HTTP GET /robots.txt', async () => {
         method: 'GET',
     });
     expect(response.status).toEqual(200);
-    expect(response.headers['content-type']).toEqual(
-        'text/plain; charset=utf-8',
+    expect(response.headers.get('content-type')).toEqual(
+        'text/plain; charset=UTF-8',
     );
-    expect(response.text).toEqual('User-agent: *\nDisallow: /');
+    expect(await response.text()).toEqual('User-agent: *\nDisallow: /');
 });
 
 test('HTTP GET /logo.svg', async () => {
@@ -49,8 +49,8 @@ test('HTTP GET /logo.svg', async () => {
         method: 'GET',
     });
     expect(response.status).toEqual(200);
-    expect(response.headers['content-type']).toEqual(
-        'image/svg+xml; charset=utf-8',
+    expect(response.headers.get('content-type')).toEqual(
+        'image/svg+xml; charset=UTF-8',
     );
 });
 
@@ -59,12 +59,13 @@ test('HTTP GET /s', async () => {
         method: 'GET',
     });
     expect(response.status).toEqual(200);
-    expect(response.headers['content-type']).toEqual(
-        'text/plain; charset=utf-8',
+    expect(response.headers.get('content-type')).toEqual(
+        'text/plain; charset=UTF-8',
     );
-    expect(response.text).toContain('url="http://127.0.0.1:3000/v1/deploy"');
-    expect(response.text).toContain('curl -X POST');
-    expect(response.text).not.toContain('{{');
+    const text = await response.text();
+    expect(text).toContain('url="http://127.0.0.1:3000/v1/deploy"');
+    expect(text).toContain('curl -X POST');
+    expect(text).not.toContain('{{');
 });
 
 test('HTTP GET /pwsh', async () => {
@@ -72,10 +73,11 @@ test('HTTP GET /pwsh', async () => {
         method: 'GET',
     });
     expect(response.status).toEqual(200);
-    expect(response.headers['content-type']).toEqual(
-        'text/plain; charset=utf-8',
+    expect(response.headers.get('content-type')).toEqual(
+        'text/plain; charset=UTF-8',
     );
-    expect(response.text).toContain('$url = "http://127.0.0.1:3000/v1/deploy"');
-    expect(response.text).toContain('Invoke-RestMethod');
-    expect(response.text).not.toContain('{{');
+    const text = await response.text();
+    expect(text).toContain('$url = "http://127.0.0.1:3000/v1/deploy"');
+    expect(text).toContain('Invoke-RestMethod');
+    expect(text).not.toContain('{{');
 });

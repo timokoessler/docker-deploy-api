@@ -1,6 +1,7 @@
 import type { Context } from 'hono';
 import { getConnInfo } from '@hono/node-server/conninfo';
 import { isIP } from 'node:net';
+import type { ConnInfo } from 'hono/conninfo';
 
 export function isBehindProxy() {
     return process.env.BEHIND_PROXY === 'true';
@@ -29,7 +30,12 @@ export function getIPAddress(
 }
 
 export function getIPAddressFromHono(c: Context): string | undefined {
-    const info = getConnInfo(c);
+    let info: ConnInfo;
+    try {
+        info = getConnInfo(c);
+    } catch {
+        return undefined;
+    }
 
     if (!info.remote.address) {
         return undefined;

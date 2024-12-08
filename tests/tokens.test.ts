@@ -37,7 +37,7 @@ test('HTTP POST /v1/deploy (token with non-existing container)', async () => {
     });
 
     expect(response.status).toEqual(404);
-    expect(response.text).toEqual(
+    expect(await response.text()).toEqual(
         'Error: Can not find container info for non-existing-container-abc',
     );
 });
@@ -55,7 +55,7 @@ test('HTTP POST /v1/deploy (expired token)', async () => {
     });
 
     expect(response.status).toEqual(401);
-    expect(response.text).toEqual('Error: Invalid deploy token');
+    expect(await response.text()).toEqual('Error: Invalid deploy token');
 });
 
 test('HTTP POST /v1/deploy (revoked token)', async () => {
@@ -67,7 +67,9 @@ test('HTTP POST /v1/deploy (revoked token)', async () => {
     });
 
     expect(response.status).toEqual(401);
-    expect(response.text).toEqual('Error: Deploy token has been revoked');
+    expect(await response.text()).toEqual(
+        'Error: Deploy token has been revoked',
+    );
 });
 
 test('HTTP POST /v1/deploy (expired token)', async () => {
@@ -79,7 +81,7 @@ test('HTTP POST /v1/deploy (expired token)', async () => {
     });
 
     expect(response.status).toEqual(401);
-    expect(response.text).toEqual('Error: Invalid deploy token');
+    expect(await response.text()).toEqual('Error: Invalid deploy token');
 });
 
 test('HTTP POST /v1/deploy (no token)', async () => {
@@ -88,7 +90,9 @@ test('HTTP POST /v1/deploy (no token)', async () => {
     });
 
     expect(response.status).toEqual(401);
-    expect(response.text).toEqual('Error: Missing X-Deploy-Token header');
+    expect(await response.text()).toEqual(
+        'Error: Missing X-Deploy-Token header',
+    );
 });
 
 test('Generate deploy token without container names', async () => {
@@ -111,7 +115,9 @@ test('HTTP POST /v1/deploy (token without container names)', async () => {
     });
 
     expect(response.status).toEqual(400);
-    expect(response.text).toEqual('Error: No container names specified');
+    expect(await response.text()).toEqual(
+        'Error: No container names specified',
+    );
 });
 
 test('Generate deploy token without action', async () => {
@@ -135,7 +141,9 @@ test('HTTP POST /v1/deploy (token without action)', async () => {
     });
 
     expect(response.status).toEqual(400);
-    expect(response.text).toEqual('Error: No or invalid action specified');
+    expect(await response.text()).toEqual(
+        'Error: No or invalid action specified',
+    );
 });
 
 test('Generate deploy token with invalid expiration', async () => {

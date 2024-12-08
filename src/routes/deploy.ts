@@ -234,10 +234,9 @@ export function setupDeployRoutes(app: Hono) {
                             'error',
                             `Failed to recreate container ${containerName}`,
                         );
-                        c.text(logOutput, {
+                        return c.text(logOutput, {
                             status: 500,
                         });
-                        return;
                     }
                     logAndSave(
                         'info',
@@ -255,7 +254,6 @@ export function setupDeployRoutes(app: Hono) {
                         return c.text(logOutput, {
                             status: 500,
                         });
-                        return;
                     }
                     logAndSave(
                         'info',
