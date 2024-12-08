@@ -29,11 +29,12 @@
         "url": "https://github.com/timokoessler/docker-deploy-api/issues"
     },
     "dependencies": {
+        "@hono/node-server": "^1.13.7",
         "@sentry/node": "^8.35.0",
         "dockerode": "^4.0.0",
         "enquirer": "^2.4.1",
         "eslint-plugin-unicorn": "^56.0.0",
-        "express": "^5.0.1",
+        "hono": "^4.6.13",
         "interactive-cli-tester": "^0.3.0",
         "ora": "^7.0.1",
         "paseto": "^3.1.4"
@@ -42,7 +43,6 @@
         "@eslint/js": "^9.13.0",
         "@swc/jest": "^0.2.29",
         "@types/dockerode": "^3.3.23",
-        "@types/express": "^5.0.0",
         "@types/jest": "^29.5.11",
         "@types/node": "^22.8.1",
         "@types/supertest": "^6.0.2",
@@ -53,7 +53,6 @@
         "license-checker-rseidelsohn": "^4.2.10",
         "nyc": "^17.1.0",
         "prettier": "^3.0.3",
-        "supertest": "^7.0.0",
         "tsup": "^8.0.1",
         "typescript": "^5.1.6",
         "typescript-eslint": "^8.11.0"

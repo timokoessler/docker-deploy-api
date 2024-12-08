@@ -1,4 +1,3 @@
-import type { Application } from 'express';
 import { isTokenRevoked, verifyDeployToken } from '../core/tokens';
 import { DeployToken, DeployTokenAction } from '../types';
 import {
@@ -13,33 +12,38 @@ import {
 } from '../core/docker';
 import { Container, ContainerInfo } from 'dockerode';
 import { log } from '../core/logger';
+import type { Hono } from 'hono';
+import { getIPAddressFromHono } from '../core/ip';
 
-export function setupDeployRoutes(app: Application) {
-    app.post('/v1/deploy', async (req, res) => {
+export function setupDeployRoutes(app: Hono) {
+    app.post('/v1/deploy', async (c) => {
         try {
             // Check if the request has the correct deploy token
-            const deployToken = req.header('X-Deploy-Token');
+            const deployToken = c.req.header('X-Deploy-Token');
             if (typeof deployToken !== 'string' || deployToken.length === 0) {
-                res.status(401).send('Error: Missing X-Deploy-Token header');
-                return;
+                return c.text('Error: Missing X-Deploy-Token header', {
+                    status: 401,
+                });
             }
             const token = (await verifyDeployToken(deployToken)) as DeployToken;
             if (!token) {
                 log(
                     'warn',
-                    `Received request with invalid deploy token from ${req.ip}`,
+                    `Received request with invalid deploy token from ${getIPAddressFromHono(c)}`,
                 );
-                res.status(401).send('Error: Invalid deploy token');
-                return;
+
+                return c.text('Error: Invalid deploy token', { status: 401 });
             }
 
             if (isTokenRevoked(deployToken)) {
                 log(
                     'warn',
-                    `Received request with revoked deploy token from ${req.ip}`,
+                    `Received request with revoked deploy token from ${getIPAddressFromHono(c)}`,
                 );
-                res.status(401).send('Error: Deploy token has been revoked');
-                return;
+
+                return c.text('Error: Deploy token has been revoked', {
+                    status: 401,
+                });
             }
 
             // Validate the token contents
@@ -47,23 +51,26 @@ export function setupDeployRoutes(app: Application) {
                 Array.isArray(token.containerNames) &&
                 token.containerNames.length === 0
             ) {
-                res.status(400).send('Error: No container names specified');
-                return;
+                return c.text('Error: No container names specified', {
+                    status: 400,
+                });
             }
             if (
                 typeof token.action !== 'number' ||
                 token.action < 0 ||
                 token.action > 2
             ) {
-                res.status(400).send('Error: No or invalid action specified');
-                return;
+                return c.text('Error: No or invalid action specified', {
+                    status: 400,
+                });
             }
 
             // Get the container info for all containers
             const containerInfos = await getContainerInfoList();
             if (!containerInfos) {
-                res.status(500).send('Error: Failed to list containers');
-                return;
+                return c.text('Error: Failed to list containers', {
+                    status: 500,
+                });
             }
 
             // Get the container objects for all containers that should be deployed and put them in a list
@@ -76,21 +83,25 @@ export function setupDeployRoutes(app: Application) {
                     (c) => c.Names[0] === `/${containerName}`,
                 );
                 if (!containerInfo) {
-                    res.status(404).send(
-                        `Error: Can not find container info for ${containerName}`,
-                    );
                     log(
                         'warn',
                         `Can not find container info for ${containerName}`,
                     );
-                    return;
+                    return c.text(
+                        `Error: Can not find container info for ${containerName}`,
+                        {
+                            status: 404,
+                        },
+                    );
                 }
                 const container = await getContainerByID(containerInfo.Id);
                 if (!container) {
-                    res.status(404).send(
+                    return c.text(
                         `Error: Container ${containerName} not found`,
+                        {
+                            status: 404,
+                        },
                     );
-                    return;
                 }
                 deployContainerList.push({ container, info: containerInfo });
             }
@@ -141,8 +152,9 @@ export function setupDeployRoutes(app: Application) {
                             'error',
                             `Failed to pull image for container ${containerName}: ${error.message}`,
                         );
-                        res.status(500).send(logOutput);
-                        return;
+                        return c.text(logOutput, {
+                            status: 500,
+                        });
                     }
 
                     logAndSave('info', `Recreating container ${containerName}`);
@@ -151,8 +163,9 @@ export function setupDeployRoutes(app: Application) {
                             'error',
                             `Failed to recreate container ${containerName}`,
                         );
-                        res.status(500).send(logOutput);
-                        return;
+                        return c.text(logOutput, {
+                            status: 500,
+                        });
                     }
 
                     // Remove the old image
@@ -221,8 +234,9 @@ export function setupDeployRoutes(app: Application) {
                             'error',
                             `Failed to recreate container ${containerName}`,
                         );
-                        res.status(500).send(logOutput);
-                        return;
+                        return c.text(logOutput, {
+                            status: 500,
+                        });
                     }
                     logAndSave(
                         'info',
@@ -237,8 +251,9 @@ export function setupDeployRoutes(app: Application) {
                             'error',
                             `Failed to restart container ${containerName}`,
                         );
-                        res.status(500).send(logOutput);
-                        return;
+                        return c.text(logOutput, {
+                            status: 500,
+                        });
                     }
                     logAndSave(
                         'info',
@@ -247,14 +262,17 @@ export function setupDeployRoutes(app: Application) {
                 }
             }
             logAndSave('info', 'Successfully deployed all containers');
-            res.status(200).send(logOutput);
+            return c.text(logOutput, {
+                status: 200,
+            });
         } catch (error) {
             log('error', `Failed to deploy containers: ${error.message}`);
-            if (!res.headersSent) {
-                res.status(500).send(
-                    'Internal server error. View logs for more information.',
-                );
-            }
+            return c.text(
+                'Internal server error. View logs for more information.',
+                {
+                    status: 500,
+                },
+            );
         }
     });
 }
