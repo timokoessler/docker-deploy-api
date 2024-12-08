@@ -12,13 +12,13 @@ But how do you update the running containers on your servers with the new image?
 
 ## Features
 
--   Pull new image and recreate container, or only recreate or restart a container
--   Update multiple containers at once 🔄️
--   Clean up old images 🧹
--   Works with private Docker registries 🔒
--   No need to give your CI/CD pipeline SSH access to your servers 🛡️
--   Works without any database
--   Supports any CI/CD pipeline, e.g. GitHub Actions, GitLab CI, etc.
+- Pull new image and recreate container, or only recreate or restart a container
+- Update multiple containers at once 🔄️
+- Clean up old images 🧹
+- Works with private Docker registries 🔒
+- No need to give your CI/CD pipeline SSH access to your servers 🛡️
+- Works without any database
+- Supports any CI/CD pipeline, e.g. GitHub Actions, GitLab CI, etc.
 
 ## Installation 🚀
 
@@ -48,7 +48,7 @@ In the [documentation](https://deploy-api.tkoessler.de) you can find examples fo
 
 If a public GitHub issue or discussion is not the right choice for your concern, you can contact me directly:
 
--   E-Mail: [info@timokoessler.de](mailto:info@timokoessler.de)
+- E-Mail: [info@timokoessler.de](mailto:info@timokoessler.de)
 
 ## License
 

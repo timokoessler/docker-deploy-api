@@ -16,5 +16,5 @@ Read our [Code of Conduct](CODE_OF_CONDUCT.md) to keep our community approachabl
 
 ## PRs and code contributions
 
--   After cloning the repo run `npm i`
--   Run `npm run lint` before every commit (ESLint)
+- After cloning the repo run `npm i`
+- Run `npm run lint` before every commit (ESLint)
