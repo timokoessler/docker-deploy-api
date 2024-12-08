@@ -1,4 +1,4 @@
-import express from 'express';
+// import '@aikidosec/firewall'; // Should this be included?
 import cluster from 'node:cluster';
 import { isDev } from './core/helpers';
 import { log } from './core/logger';
@@ -8,6 +8,12 @@ import { initConfig } from './core/config';
 import { initPaseto, setupPaseto } from './core/tokens';
 import { initDocker } from './core/docker';
 import { handleCORS } from './routes/cors';
+import { Hono } from 'hono';
+import { serve } from '@hono/node-server';
+import { HTTPException } from 'hono/http-exception';
+import { trimTrailingSlash } from 'hono/trailing-slash';
+import { bodyLimit } from 'hono/body-limit';
+import { compress } from 'hono/compress';
 
 // Check if file is being run directly or required as a module
 // eslint-disable-next-line unicorn/prefer-module
@@ -38,21 +44,27 @@ if (require.main === module) {
     } else {
         const config = initConfig();
         const app = initApp(config);
-        app.listen(config.port, config.ip, () => {
-            log('info', `Listening on ${config.ip}:${config.port}`);
-        });
+
+        serve(
+            {
+                fetch: app.fetch,
+                port: config.port,
+                hostname: config.ip,
+            },
+            (info) => {
+                log('info', `Listening on ${info.address}:${info.port}`);
+            },
+        );
     }
 }
 
-export function initApp(
-    config: ReturnType<typeof initConfig>,
-): express.Application {
-    const app: express.Application = express();
-    app.disable('x-powered-by');
+export function initApp(config: ReturnType<typeof initConfig>): Hono {
+    const app: Hono = new Hono();
 
-    if (config.behindProxy) {
-        app.set('trust proxy', ['loopback', 'linklocal', 'uniquelocal']);
-    }
+    // if (config.behindProxy) {
+    //     app.set('trust proxy', ['loopback', 'linklocal', 'uniquelocal']);
+    // }
+    // TODO: Is this needed?
 
     if (config.sentryDsn.length > 0) {
         log('info', 'Enabling Sentry error reporting');
@@ -62,21 +74,38 @@ export function initApp(
         });
     }
 
-    // @ts-expect-error Wrong type definitions
     app.use(handleCORS);
+
+    app.use(trimTrailingSlash());
+    app.use(
+        bodyLimit({
+            maxSize: 5 * 1024 * 1024, // 5MB
+            onError: (c) => {
+                return c.text('Body is too large :(', { status: 413 });
+            },
+        }),
+    );
+    app.use(compress());
 
     initPaseto();
     initDocker();
     setupRoutes(app);
 
-    app.use((_req, res) => {
-        res.sendStatus(404);
+    app.notFound((c) => {
+        return c.json({ error: 'Not found' }, 404);
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    app.use(function (err, req, res, next) {
-        log('error', err.message);
-        res.sendStatus(500);
+    app.onError((err, c) => {
+        return c.json({ error: 'Internal Server Error' }, 500);
+    });
+
+    app.onError((err, c) => {
+        if (err instanceof HTTPException) {
+            return err.getResponse();
+        }
+        console.error(err);
+        Sentry.captureException(err);
+        return c.text('Internal Server Error', 500);
     });
 
     return app;

@@ -1,10 +1,9 @@
-import type { Application } from 'express';
 import { initServer, sleep } from './test-helpers';
-import request from 'supertest';
 import { DeployToken, DeployTokenAction } from '../src/types';
 import { generateDeployToken } from '../src/core/tokens';
+import type { Hono } from 'hono';
 
-let app: Application;
+let app: Hono;
 let deployToken = '';
 
 process.env.NODE_ENV = 'TEST';
@@ -30,9 +29,12 @@ test('Generate deploy token', async () => {
 });
 
 test('HTTP POST /v1/deploy (token with non-existing container)', async () => {
-    const response = await request(app)
-        .post('/v1/deploy')
-        .set('X-Deploy-Token', deployToken);
+    const response = await app.request('/v1/deploy', {
+        method: 'POST',
+        headers: {
+            'X-Deploy-Token': deployToken,
+        },
+    });
 
     expect(response.status).toEqual(404);
     expect(response.text).toEqual(
@@ -45,34 +47,45 @@ test('Wait until token expires', async () => {
 });
 
 test('HTTP POST /v1/deploy (expired token)', async () => {
-    const response = await request(app)
-        .post('/v1/deploy')
-        .set('X-Deploy-Token', deployToken);
+    const response = await app.request('/v1/deploy', {
+        method: 'POST',
+        headers: {
+            'X-Deploy-Token': deployToken,
+        },
+    });
 
     expect(response.status).toEqual(401);
     expect(response.text).toEqual('Error: Invalid deploy token');
 });
 
 test('HTTP POST /v1/deploy (revoked token)', async () => {
-    const response = await request(app)
-        .post('/v1/deploy')
-        .set('X-Deploy-Token', revokedToken);
+    const response = await app.request('/v1/deploy', {
+        method: 'POST',
+        headers: {
+            'X-Deploy-Token': revokedToken,
+        },
+    });
 
     expect(response.status).toEqual(401);
     expect(response.text).toEqual('Error: Deploy token has been revoked');
 });
 
 test('HTTP POST /v1/deploy (expired token)', async () => {
-    const response = await request(app)
-        .post('/v1/deploy')
-        .set('X-Deploy-Token', deployToken);
+    const response = await app.request('/v1/deploy', {
+        method: 'POST',
+        headers: {
+            'X-Deploy-Token': deployToken,
+        },
+    });
 
     expect(response.status).toEqual(401);
     expect(response.text).toEqual('Error: Invalid deploy token');
 });
 
 test('HTTP POST /v1/deploy (no token)', async () => {
-    const response = await request(app).post('/v1/deploy');
+    const response = await app.request('/v1/deploy', {
+        method: 'POST',
+    });
 
     expect(response.status).toEqual(401);
     expect(response.text).toEqual('Error: Missing X-Deploy-Token header');
@@ -90,9 +103,12 @@ test('Generate deploy token without container names', async () => {
 });
 
 test('HTTP POST /v1/deploy (token without container names)', async () => {
-    const response = await request(app)
-        .post('/v1/deploy')
-        .set('X-Deploy-Token', deployToken);
+    const response = await app.request('/v1/deploy', {
+        method: 'POST',
+        headers: {
+            'X-Deploy-Token': deployToken,
+        },
+    });
 
     expect(response.status).toEqual(400);
     expect(response.text).toEqual('Error: No container names specified');
@@ -111,9 +127,12 @@ test('Generate deploy token without action', async () => {
 });
 
 test('HTTP POST /v1/deploy (token without action)', async () => {
-    const response = await request(app)
-        .post('/v1/deploy')
-        .set('X-Deploy-Token', deployToken);
+    const response = await app.request('/v1/deploy', {
+        method: 'POST',
+        headers: {
+            'X-Deploy-Token': deployToken,
+        },
+    });
 
     expect(response.status).toEqual(400);
     expect(response.text).toEqual('Error: No or invalid action specified');

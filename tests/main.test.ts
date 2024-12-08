@@ -1,5 +1,3 @@
-import type { Application } from 'express';
-import request from 'supertest';
 import { initServer, sleep, timeDiff } from './test-helpers';
 import { Container } from 'dockerode';
 import { createDockerTestContainer } from './test-helpers';
@@ -12,8 +10,9 @@ import {
 } from '../src/core/docker';
 import { DeployToken, DeployTokenAction } from '../src/types';
 import { generateDeployToken } from '../src/core/tokens';
+import type { Hono } from 'hono';
 
-let app: Application;
+let app: Hono;
 let deployToken = '';
 let testContainer: Container;
 let imageHash: string;
@@ -79,14 +78,20 @@ async function checkContainer({
 }
 
 test('HTTP GET /', async () => {
-    return request(app).get('/').expect(200);
+    const response = await app.request('/', {
+        method: 'GEt',
+    });
+    expect(response.status).toEqual(200);
 });
 
 test('HTTP POST /v1/deploy with empty deploy token', async () => {
-    return request(app)
-        .post('/v1/deploy')
-        .set('X-Deploy-Token', deployToken)
-        .expect(401);
+    const response = await app.request('/v1/deploy', {
+        method: 'POST',
+        headers: {
+            'X-Deploy-Token': deployToken,
+        },
+    });
+    expect(response.status).toEqual(401);
 });
 
 test('Delete busybox 1.35.0 image', async () => {
@@ -147,11 +152,13 @@ test('Generate deploy token (pull & recreate)', async () => {
 });
 
 test('HTTP POST /v1/deploy (pull & recreate)', async () => {
-    return request(app)
-        .post('/v1/deploy')
-        .set('X-Deploy-Token', deployToken)
-        .timeout(30_000)
-        .expect(200);
+    const response = await app.request('/v1/deploy', {
+        method: 'POST',
+        headers: {
+            'X-Deploy-Token': deployToken,
+        },
+    });
+    expect(response.status).toEqual(200);
 });
 
 test('Check recreated container', async () => {
@@ -170,11 +177,13 @@ test('Generate deploy token (restart)', async () => {
 });
 
 test('HTTP POST /v1/deploy (restart)', async () => {
-    return request(app)
-        .post('/v1/deploy')
-        .set('X-Deploy-Token', deployToken)
-        .timeout(30_000)
-        .expect(200);
+    const response = await app.request('/v1/deploy', {
+        method: 'POST',
+        headers: {
+            'X-Deploy-Token': deployToken,
+        },
+    });
+    expect(response.status).toEqual(200);
 });
 
 test('Check restarted container', async () => {
@@ -193,11 +202,13 @@ test('Generate deploy token (recreate)', async () => {
 });
 
 test('HTTP POST /v1/deploy (recreate)', async () => {
-    return request(app)
-        .post('/v1/deploy')
-        .set('X-Deploy-Token', deployToken)
-        .timeout(30_000)
-        .expect(200);
+    const response = await app.request('/v1/deploy', {
+        method: 'POST',
+        headers: {
+            'X-Deploy-Token': deployToken,
+        },
+    });
+    expect(response.status).toEqual(200);
 });
 
 test('Check recreated container', async () => {

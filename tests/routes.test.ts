@@ -1,7 +1,7 @@
-import type { Application } from 'express';
+import type { Hono } from 'hono';
 import { initServer } from './test-helpers';
-import request from 'supertest';
-let app: Application;
+
+let app: Hono;
 
 process.env.NODE_ENV = 'TEST';
 process.env.PORT = '3000';
@@ -13,11 +13,16 @@ beforeAll(async () => {
 });
 
 test('HTTP GET /', async () => {
-    return request(app).get('/').expect(204);
+    const response = await app.request('/', {
+        method: 'GET',
+    });
+    expect(response.status).toEqual(204);
 });
 
 test('HTTP GET /test', async () => {
-    const response = await request(app).options('/');
+    const response = await app.request('/', {
+        method: 'GET',
+    });
     expect(response.status).toEqual(204);
     expect(response.headers['access-control-allow-origin']).toEqual('*');
     expect(response.headers['access-control-allow-methods']).toEqual(
@@ -29,7 +34,9 @@ test('HTTP GET /test', async () => {
 });
 
 test('HTTP GET /robots.txt', async () => {
-    const response = await request(app).get('/robots.txt');
+    const response = await app.request('/robots.txt', {
+        method: 'GET',
+    });
     expect(response.status).toEqual(200);
     expect(response.headers['content-type']).toEqual(
         'text/plain; charset=utf-8',
@@ -38,7 +45,9 @@ test('HTTP GET /robots.txt', async () => {
 });
 
 test('HTTP GET /logo.svg', async () => {
-    const response = await request(app).get('/logo.svg');
+    const response = await app.request('/logo.svg', {
+        method: 'GET',
+    });
     expect(response.status).toEqual(200);
     expect(response.headers['content-type']).toEqual(
         'image/svg+xml; charset=utf-8',
@@ -46,7 +55,9 @@ test('HTTP GET /logo.svg', async () => {
 });
 
 test('HTTP GET /s', async () => {
-    const response = await request(app).get('/s');
+    const response = await app.request('/s', {
+        method: 'GET',
+    });
     expect(response.status).toEqual(200);
     expect(response.headers['content-type']).toEqual(
         'text/plain; charset=utf-8',
@@ -57,7 +68,9 @@ test('HTTP GET /s', async () => {
 });
 
 test('HTTP GET /pwsh', async () => {
-    const response = await request(app).get('/pwsh');
+    const response = await app.request('/pwsh', {
+        method: 'GET',
+    });
     expect(response.status).toEqual(200);
     expect(response.headers['content-type']).toEqual(
         'text/plain; charset=utf-8',
