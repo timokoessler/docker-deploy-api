@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.1.1 - 2025-09-06
+
+- Update dependencies
+
 ## 1.1.0 - 2024-12-08
 
 - Migrate from Express to Hono

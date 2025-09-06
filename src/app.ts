@@ -64,6 +64,7 @@ export function initApp(config: ReturnType<typeof initConfig>): Hono {
         Sentry.init({
             dsn: config.sentryDsn,
             environment: isDev() ? 'development' : 'production',
+            tracesSampleRate: 0,
         });
     }
 
