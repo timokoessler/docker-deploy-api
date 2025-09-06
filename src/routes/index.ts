@@ -1,9 +1,9 @@
-import { default as indexPage } from './pages/index';
+import indexPage from './pages/index';
 import { getConfig } from '../core/config';
 import { setupDeployRoutes } from './deploy';
-import { default as requestSh } from './scripts/request.sh';
-import { default as requestPs1 } from './scripts/request.ps1';
-import { default as logo } from './pages/assets/logo.svg';
+import requestSh from './scripts/request.sh';
+import requestPs1 from './scripts/request.ps1';
+import logo from './pages/assets/logo.svg';
 import type { Hono } from 'hono';
 
 export function setupRoutes(app: Hono) {
