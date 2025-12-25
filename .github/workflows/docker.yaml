@@ -5,17 +5,22 @@ on:
             - 'main'
         tags:
             - 'v*'
+
+permissions:
+    contents: read
+    packages: write
+
 jobs:
     build:
         runs-on: ubuntu-latest
         timeout-minutes: 15
         steps:
             - name: Checkout repository ⬇️
-              uses: actions/checkout@v4
+              uses: actions/checkout@v6
             - name: Setup Node.js environment
-              uses: actions/setup-node@v4
+              uses: actions/setup-node@v6
               with:
-                  node-version: 22.x
+                  node-version: 24.x
                   cache: 'npm'
             - name: Install dependencies 📦
               run: npm ci
@@ -53,7 +58,7 @@ jobs:
                   tags: ${{ steps.meta.outputs.tags }}
                   labels: ${{ steps.meta.outputs.labels }}
             - name: Update Docker Hub Description 📘
-              uses: peter-evans/dockerhub-description@v4
+              uses: peter-evans/dockerhub-description@1b9a80c056b620d92cedb9d9b5a223409c68ddfa
               with:
                   username: ${{ secrets.DOCKER_HUB_USERNAME }}
                   password: ${{ secrets.DOCKER_HUB_PASSWORD }}

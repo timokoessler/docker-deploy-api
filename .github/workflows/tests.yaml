@@ -6,6 +6,9 @@ on:
     pull_request:
         branches: ['main']
 
+permissions:
+    contents: read
+
 jobs:
     test:
         runs-on: ubuntu-latest
@@ -13,17 +16,17 @@ jobs:
             GITLAB_AUTH_TOKEN: ${{ secrets.GITLAB_AUTH_TOKEN }}
         steps:
             - name: Checkout repository ⬇️
-              uses: actions/checkout@v4
-            - name: Use Node.js 20
-              uses: actions/setup-node@v4
+              uses: actions/checkout@v6
+            - name: Use Node.js 24
+              uses: actions/setup-node@v6
               with:
-                  node-version: 22.x
+                  node-version: 24.x
                   cache: 'npm'
             - name: Install dependencies 📦
               run: npm ci
             - name: Run tests 🧪
               run: npm test
             - name: Upload coverage report to Codecov 📊
-              uses: codecov/codecov-action@v4
+              uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v4
               env:
                   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
