@@ -4,8 +4,7 @@
     "compilerOptions": {
         "allowSyntheticDefaultImports": true,
         "target": "ES2022",
-        "moduleResolution": "Node",
-        "outDir": "dist",
+        "moduleResolution": "bundler",
         "module": "CommonJS",
         "esModuleInterop": true,
         "strict": false,
