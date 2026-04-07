@@ -18,7 +18,7 @@ import { compress } from 'hono/compress';
 if (require.main === module) {
     if (cluster.isPrimary) {
         const config = initConfig();
-        setupPaseto();
+        void setupPaseto();
 
         if (isDev()) {
             log('warn', 'Running in development mode');
@@ -86,8 +86,8 @@ export function initApp(config: ReturnType<typeof initConfig>): Hono {
     );
     app.use(compress());
 
-    initPaseto();
-    initDocker();
+    void initPaseto();
+    void initDocker();
     setupRoutes(app);
 
     app.notFound((c) => {

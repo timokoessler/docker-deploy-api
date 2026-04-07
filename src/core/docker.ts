@@ -19,7 +19,9 @@ export async function initDocker(cli = false) {
         }
         return true;
     } catch (error) {
-        if (cli) return false;
+        if (cli) {
+            return false;
+        }
         log('error', `Failed to connect to Docker socket: ${error.message}`);
         process.exit(1);
     }
@@ -30,7 +32,7 @@ export async function initDocker(cli = false) {
  * @param imageName Name of the image to pull in the format `repository:tag` (e.g. `nginx:latest`)
  * @returns A promise that resolves when the image has been pulled.
  */
-export async function pullImage(
+export function pullImage(
     imageName: string,
     auth?: { username: string; password: string },
 ): Promise<
@@ -214,11 +216,13 @@ async function checkDockerCredentialStore(): Promise<boolean> {
         );
         const dockerConfig = JSON.parse(dockerConfigFile);
         if (dockerConfig.credsStore || dockerConfig.credHelpers) {
-            if (!isTest())
+            if (!isTest()) {
                 log(
                     'warn',
                     'Can not automatically get login data for private Docker registries because a credential store is configured.',
                 );
+            }
+
             return false;
         }
 

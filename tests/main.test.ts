@@ -1,6 +1,10 @@
-import { initServer, sleep, timeDiff } from './test-helpers';
+import {
+    initServer,
+    sleep,
+    timeDiff,
+    createDockerTestContainer,
+} from './test-helpers';
 import { Container } from 'dockerode';
-import { createDockerTestContainer } from './test-helpers';
 import {
     getContainerByID,
     getContainerInfoList,

@@ -94,7 +94,7 @@ export function setupDeployRoutes(app: Hono) {
                         },
                     );
                 }
-                const container = await getContainerByID(containerInfo.Id);
+                const container = getContainerByID(containerInfo.Id);
                 if (!container) {
                     return c.text(
                         `Error: Container ${containerName} not found`,

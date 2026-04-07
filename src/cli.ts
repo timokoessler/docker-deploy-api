@@ -4,7 +4,7 @@ import { cliGenerateToken } from './cli/generate-token';
 import { cliRevokeToken } from './cli/revoke-token';
 import { cliAddRegistryAuth } from './cli/add-registry-auth';
 
-// eslint-disable-next-line unicorn/prefer-top-level-await
+// oxlint-disable-next-line no-floating-promises
 (async () => {
     console.log('🐳 Docker Deploy CLI by Timo Kössler');
 

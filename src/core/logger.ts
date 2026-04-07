@@ -8,6 +8,7 @@ export function log(
     /* istanbul ignore else  */
     if (isTest()) {
         if (level === 'error' && process.env.EXPECT_ERROR !== 'true') {
+            // oxlint-disable-next-line no-base-to-string
             throw new Error(content.toString());
         }
     } else {
@@ -18,6 +19,7 @@ export function log(
             try {
                 txt = JSON.stringify(content);
             } catch {
+                // oxlint-disable-next-line no-base-to-string
                 txt = content.toString();
             }
         }

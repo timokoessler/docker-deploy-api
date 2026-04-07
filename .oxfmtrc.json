@@ -1,0 +1,9 @@
+{
+    "$schema": "./node_modules/oxfmt/configuration_schema.json",
+    "bracketSameLine": true,
+    "singleQuote": true,
+    "tabWidth": 4,
+    "printWidth": 80,
+    "sortPackageJson": false,
+    "ignorePatterns": ["node_modules", "dist", "docs"]
+}
