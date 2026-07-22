@@ -10,6 +10,10 @@ process.env.NODE_ENV = 'TEST';
 process.env.PORT = '3000';
 process.env.IP = '127.0.0.1';
 
+// Use a dedicated, pinned image so this suite never races the other Docker
+// integration suites (which delete and re-tag busybox) when Jest runs test
+// files in parallel against the shared daemon.
+const IMAGE = 'alpine:3.19';
 const CONTAINER_NAME = 'docker-deploy-api-test-networks';
 const NETWORK_1 = 'docker-deploy-api-test-net-1';
 const NETWORK_2 = 'docker-deploy-api-test-net-2';
@@ -20,7 +24,7 @@ let network2: Network | undefined;
 
 beforeAll(async () => {
     await initServer();
-    await pullImage('busybox:latest');
+    await pullImage(IMAGE);
 });
 
 test('recreateContainer preserves all attached networks', async () => {
@@ -32,7 +36,7 @@ test('recreateContainer preserves all attached networks', async () => {
     // Create a container attached to the first network, then connect the
     // second one - a container attached to multiple networks.
     container = await docker.createContainer({
-        Image: 'busybox:latest',
+        Image: IMAGE,
         name: CONTAINER_NAME,
         Labels: { 'docker-deploy-api': 'test' },
         Cmd: ['tail', '-f', '/dev/null'],
