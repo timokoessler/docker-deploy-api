@@ -94,14 +94,61 @@ export async function recreateContainer(
     try {
         const inspectInfo = await container.inspect();
 
+        // Capture all networks the container is attached to. Docker's create
+        // API only accepts a single network endpoint at creation time, so any
+        // additional networks have to be reconnected after creation.
+        const networks = inspectInfo.NetworkSettings?.Networks ?? {};
+        const networkNames = Object.keys(networks);
+
+        // Prefer the network referenced by NetworkMode as the one to attach at
+        // creation time, so it does not conflict with the HostConfig.
+        const networkMode = inspectInfo.HostConfig?.NetworkMode;
+        const primaryNetwork =
+            networkNames.find((name) => name === networkMode) ??
+            networkNames[0];
+
+        const networkingConfig = primaryNetwork
+            ? {
+                  EndpointsConfig: {
+                      [primaryNetwork]: buildEndpointConfig(
+                          networks[primaryNetwork],
+                      ),
+                  },
+              }
+            : undefined;
+
         await container.stop();
         await container.remove();
 
         const newContainer = await docker.createContainer({
             ...inspectInfo.Config,
             HostConfig: inspectInfo.HostConfig,
+            NetworkingConfig: networkingConfig,
             name: inspectInfo.Name.replace('/', ''),
         });
+
+        // Reconnect the remaining networks before starting so the container
+        // comes up attached to every network it had before.
+        for (const networkName of networkNames) {
+            if (networkName === primaryNetwork) {
+                continue;
+            }
+            try {
+                const network = docker.getNetwork(
+                    networks[networkName].NetworkID || networkName,
+                );
+                await network.connect({
+                    Container: newContainer.id,
+                    EndpointConfig: buildEndpointConfig(networks[networkName]),
+                });
+            } catch (error) {
+                log(
+                    'error',
+                    `Failed to reconnect container to network ${networkName}: ${error.message}`,
+                );
+                Sentry.captureException(error);
+            }
+        }
 
         await newContainer.start();
 
@@ -111,6 +158,32 @@ export async function recreateContainer(
         Sentry.captureException(error);
         return undefined;
     }
+}
+
+/**
+ * Builds the endpoint configuration for (re)connecting a container to a
+ * network, preserving user-defined settings such as static IPs, aliases and
+ * links while dropping runtime-assigned values that would conflict.
+ * @param network The network settings from a container inspect result.
+ * @returns The endpoint configuration to pass to createContainer / connect.
+ */
+function buildEndpointConfig(
+    network: Docker.NetworkInfo | undefined,
+): Docker.EndpointSettings | undefined {
+    if (!network) {
+        return undefined;
+    }
+    const endpointConfig: Docker.EndpointSettings = {};
+    if (network.IPAMConfig) {
+        endpointConfig.IPAMConfig = network.IPAMConfig;
+    }
+    if (network.Aliases) {
+        endpointConfig.Aliases = network.Aliases;
+    }
+    if (network.Links) {
+        endpointConfig.Links = network.Links;
+    }
+    return endpointConfig;
 }
 
 /**
