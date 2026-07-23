@@ -67,6 +67,9 @@ jobs:
                   context: .
                   tags: ${{ steps.meta.outputs.tags }}
                   labels: ${{ steps.meta.outputs.labels }}
+                  annotations: ${{ steps.meta.outputs.annotations }}
+                  sbom: true
+                  provenance: mode=max
 
             - name: Update Docker Hub Description
               uses: peter-evans/dockerhub-description@1b9a80c056b620d92cedb9d9b5a223409c68ddfa
