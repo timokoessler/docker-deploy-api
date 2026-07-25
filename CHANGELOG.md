@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+# 1.1.6 - 2026-07-25
+
+- Preserve all networks when recreating a container
+- Update dependencies to address security vulnerabilities
+- Add security scanning and harden GH actions
+- Enable TypeScript strict mode
+
+# 1.1.5 - 2026-04-07
+
+- Updated dependencies to latest secure versions
+- Hardened CI by pinning GitHub Actions to commit hashes
+- Migrate to oxc for linting and formatting
+
+# 1.1.4 - 2026-02-10
+
+- Update the dependencies to address security vulnerabilities
+
+# 1.1.3 - 2025-12-25
+
+- Use Node.js v24 (LTS)
+- Update the dependencies to address security vulnerabilities
+
+# 1.1.2 - 2025-10-05
+
+- Update the dependencies to address security vulnerabilities
+
 ## 1.1.1 - 2025-09-06
 
 - Update dependencies
