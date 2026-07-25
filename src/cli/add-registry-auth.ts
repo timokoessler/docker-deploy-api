@@ -50,7 +50,7 @@ export async function cliAddRegistryAuth() {
         const hostPrompt = new Input({
             message:
                 'Please enter the host or url of the container registry you want to add',
-            validate: (input) => {
+            validate: (input: unknown) => {
                 if (typeof input !== 'string') {
                     return false;
                 }

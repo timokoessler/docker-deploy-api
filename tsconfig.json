@@ -5,10 +5,13 @@
         "allowSyntheticDefaultImports": true,
         "target": "ES2022",
         "moduleResolution": "bundler",
-        "module": "CommonJS",
+        "module": "es2022",
         "esModuleInterop": true,
-        "strict": false,
+        "strict": true,
+        "strictNullChecks": true,
+        "useUnknownInCatchVariables": false,
         "checkJs": true,
-        "resolveJsonModule": true
+        "resolveJsonModule": true,
+        "skipLibCheck": true
     }
 }

@@ -29,4 +29,7 @@ jobs:
               run: node --run lint
 
             - name: Check Formatting
-              run: node --run format:check
+              run: node --run check:format
+
+            - name: Check Types
+              run: node --run check:types

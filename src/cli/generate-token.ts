@@ -84,8 +84,9 @@ export async function cliGenerateToken() {
             const expirePrompt = new Input({
                 message: 'How long should the deploy token be valid?',
                 initial: '1y',
-                validate: (input) => {
+                validate: (input: unknown) => {
                     if (
+                        typeof input === 'string' &&
                         /^(\d+|\d+\.\d+) ?(seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|weeks?|w|years?|yrs?|y)$/i.test(
                             input,
                         )

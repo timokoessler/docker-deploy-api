@@ -33,9 +33,10 @@ export async function setupPaseto() {
             );
             process.exit(1);
         }
+        const userId = process.getuid ? process.getuid() : 'unknown';
         log(
             'error',
-            `Accessing directory "${getDataDir()}" failed. Please make sure it exists and user with id ${process.getuid()} has write permissions`,
+            `Accessing directory "${getDataDir()}" failed. Please make sure it exists and user with id ${userId} has write permissions`,
         );
         process.exit(1);
     }
@@ -124,7 +125,7 @@ export async function initPaseto(cli = false) {
 export async function generateDeployToken(
     data: Record<string, unknown>,
     expiresIn: string,
-): Promise<string> {
+): Promise<string | undefined> {
     try {
         return await paseto.sign({ ...data }, key, {
             expiresIn,
@@ -141,7 +142,7 @@ export async function generateDeployToken(
  */
 export async function verifyDeployToken(
     token: string,
-): Promise<Record<string, unknown>> {
+): Promise<Record<string, unknown> | undefined> {
     try {
         return await paseto.verify(token, key);
     } catch {

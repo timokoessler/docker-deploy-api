@@ -9,7 +9,7 @@ import type { Hono } from 'hono';
 export function setupRoutes(app: Hono) {
     app.get('/', async (c) => {
         if (getConfig().disableIndexPage) {
-            return c.body(undefined, 204);
+            return c.body(null, 204);
         }
         return c.html(indexPage);
     });

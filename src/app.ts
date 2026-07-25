@@ -95,10 +95,6 @@ export function initApp(config: ReturnType<typeof initConfig>): Hono {
     });
 
     app.onError((err, c) => {
-        return c.json({ error: 'Internal Server Error' }, 500);
-    });
-
-    app.onError((err, c) => {
         if (err instanceof HTTPException) {
             return err.getResponse();
         }

@@ -8,6 +8,13 @@ import { getDataDir, isTest } from './helpers';
 let docker: Docker;
 let internalCredentialStoreAvailable = false;
 
+type PullImageConfig = {
+    authconfig?: {
+        username: string;
+        password: string;
+    };
+};
+
 export async function initDocker(cli = false) {
     try {
         docker = new Docker();
@@ -32,7 +39,7 @@ export async function initDocker(cli = false) {
  * @param imageName Name of the image to pull in the format `repository:tag` (e.g. `nginx:latest`)
  * @returns A promise that resolves when the image has been pulled.
  */
-export function pullImage(
+export async function pullImage(
     imageName: string,
     auth?: { username: string; password: string },
 ): Promise<
@@ -43,43 +50,36 @@ export function pullImage(
         id?: string;
     }[]
 > {
-    return new Promise((resolve, reject) => {
-        try {
-            const config = {};
-            if (
-                typeof auth === 'object' &&
-                typeof auth.username === 'string' &&
-                typeof auth.password === 'string'
-            ) {
-                config['authconfig'] = {
-                    username: auth.username,
-                    password: auth.password,
-                };
+    const config: PullImageConfig = {};
+    if (
+        typeof auth === 'object' &&
+        typeof auth.username === 'string' &&
+        typeof auth.password === 'string'
+    ) {
+        config.authconfig = {
+            username: auth.username,
+            password: auth.password,
+        };
+    }
+    const stream = await docker.pull(imageName, config);
+    if (!stream) {
+        throw new Error(
+            `Failed to pull image ${imageName} because no stream was returned`,
+        );
+    }
+
+    return await new Promise((resolve, reject) => {
+        docker.modem.followProgress(stream, (err, result) => {
+            if (err) {
+                log(
+                    'error',
+                    `Failed to follow image pull progress: ${err.message}`,
+                );
+                reject(err);
+                return;
             }
-            docker.pull(imageName, config, (err, stream) => {
-                if (err) {
-                    log('error', `Failed to pull image: ${err.message}`);
-                    Sentry.captureException(err);
-                    reject(err);
-                    return;
-                }
-                docker.modem.followProgress(stream, (err, result) => {
-                    if (err) {
-                        log(
-                            'error',
-                            `Failed to follow image pull progress: ${err.message}`,
-                        );
-                        reject(err);
-                        return;
-                    }
-                    resolve(result);
-                });
-            });
-        } catch (error) {
-            log('error', `Failed to pull image: ${error.message}`);
-            Sentry.captureException(error);
-            reject(error);
-        }
+            resolve(result);
+        });
     });
 }
 
@@ -127,6 +127,10 @@ export async function recreateContainer(
             name: inspectInfo.Name.replace('/', ''),
         });
 
+        if (!newContainer) {
+            throw new Error('Failed to create new container');
+        }
+
         // Reconnect the remaining networks before starting so the container
         // comes up attached to every network it had before.
         for (const networkName of networkNames) {
@@ -168,11 +172,8 @@ export async function recreateContainer(
  * @returns The endpoint configuration to pass to createContainer / connect.
  */
 function buildEndpointConfig(
-    network: Docker.NetworkInfo | undefined,
-): Docker.EndpointSettings | undefined {
-    if (!network) {
-        return undefined;
-    }
+    network: Docker.NetworkInfo,
+): Docker.EndpointSettings {
     const endpointConfig: Docker.EndpointSettings = {};
     if (network.IPAMConfig) {
         endpointConfig.IPAMConfig = network.IPAMConfig;
@@ -314,10 +315,13 @@ async function checkDockerCredentialStore(): Promise<boolean> {
  * @param imageName Name of the image to get the login data for.
  * @returns The login data or undefined if no login data was found.
  */
-export async function getContainerRegistryAuth(imageName: string): Promise<{
-    username: string;
-    password: string;
-}> {
+export async function getContainerRegistryAuth(imageName: string): Promise<
+    | {
+          username: string;
+          password: string;
+      }
+    | undefined
+> {
     try {
         const host = getContainerRegistryHost(imageName);
 

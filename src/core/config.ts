@@ -16,13 +16,14 @@ function toEnvName(key: string) {
 }
 
 export function initConfig() {
-    for (const key in config) {
+    const configRecord = config as Record<string, string | number | boolean>;
+    for (const key of Object.keys(config)) {
         const envName = toEnvName(key);
         if (process.env[envName]) {
-            switch (typeof config[key]) {
+            switch (typeof configRecord[key]) {
                 case 'number': {
-                    config[key] = Number(process.env[envName]);
-                    if (Number.isNaN(config[key])) {
+                    configRecord[key] = Number(process.env[envName]);
+                    if (Number.isNaN(configRecord[key] as number)) {
                         log(
                             'error',
                             `Environment variable ${envName} is not a number`,
@@ -42,11 +43,11 @@ export function initConfig() {
                         );
                         process.exit(1);
                     }
-                    config[key] = process.env[envName] === 'true';
+                    configRecord[key] = process.env[envName] === 'true';
                     break;
                 }
                 default: {
-                    config[key] = process.env[envName];
+                    configRecord[key] = process.env[envName];
                 }
             }
         }

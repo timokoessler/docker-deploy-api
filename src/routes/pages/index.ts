@@ -94,9 +94,6 @@ export default `<!DOCTYPE html>
         .container {
           background-color: #1a1a1a;
         }
-        .emoji {
-          filter: invert(1);
-        }
         .buttons {
           background-color: #1a1a1a;
         }

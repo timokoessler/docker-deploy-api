@@ -14,7 +14,7 @@ import { getDataDir, sha512 } from '../core/helpers';
 export async function cliRevokeToken() {
     const tokenPrompt = new Input({
         message: 'Please paste or enter the token you want to revoke',
-        validate: (input) => {
+        validate: (input: unknown) => {
             if (typeof input === 'string' && input.startsWith('v4.public.')) {
                 return true;
             }

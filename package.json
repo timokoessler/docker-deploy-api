@@ -10,7 +10,8 @@
         "coverage:report": "npx nyc report --reporter clover --reporter text --reporter lcov -t coverage --report-dir coverage",
         "lint": "oxlint --type-aware --deny-warnings",
         "format": "oxfmt --write .",
-        "format:check": "oxfmt --check .",
+        "check:format": "oxfmt --check .",
+        "check:types": "tsc --noEmit",
         "build": "tsup",
         "cli": "node dist/cli",
         "start": "node dist/app",
@@ -49,11 +50,18 @@
         "nyc": "^18.0.0",
         "oxfmt": "^0.59.0",
         "oxlint": "^1.53.0",
-        "oxlint-tsgolint": "^0.25.0",
+        "oxlint-tsgolint": "^7.0.2001",
         "tsup": "^8.0.1",
         "typescript": "^5.1.6"
     },
     "overrides": {
         "esbuild@<0.28.0": "0.28.1"
+    },
+    "allowScripts": {
+        "cpu-features@0.0.10": true,
+        "ssh2@1.17.0": true,
+        "esbuild@0.28.1": true,
+        "protobufjs@7.6.5": true,
+        "@swc/core@1.15.46": true
     }
 }
