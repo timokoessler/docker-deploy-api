@@ -4,7 +4,9 @@ export default defineConfig({
     entry: ['./src/cli.ts'],
     bundle: true,
     format: ['cjs'],
-    noExternal: [/.*/],
+    // ssh2's optional native binding does not build on Node.js 26, ssh2 falls back to pure JS
+    noExternal: [/^(?!.*sshcrypto\.node$).*/],
+    external: [/sshcrypto\.node$/],
     sourcemap: 'inline',
     platform: 'node',
     outDir: 'dist',
