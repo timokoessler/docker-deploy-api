@@ -7,6 +7,9 @@
 
 An easy-to-use API for deploying Docker containers to a server.
 
+> [!TIP]
+> I recommend new users to use [OrcaCD](https://github.com/OrcaCD/orca-cd/) instead of this project.
+
 Let's say you build a Docker image for your application using a CI/CD pipeline and upload the image to a Docker registry.
 But how do you update the running containers on your servers with the new image? You can use Docker Deploy API to do that.
 
