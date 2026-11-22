@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+# 1.1.9 - 2026-11-22
+
+- Update Node.js and dependencies to address security vulnerabilities
+
 # 1.1.8 - 2026-10-23
 
 - Upgrade to Node.js v26
